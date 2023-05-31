@@ -9,11 +9,13 @@ public class GraphVisualizer extends JFrame {
     private Graph graph;
     private int zoomLevel = 10; // Valeur initiale du zoom
     private JLabel zoomLabel;
+    private JScrollPane scrollPane;
+    private DrawingPanel drawingPanel;
 
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
+        setSize(1000, 600); // Modification de la taille de la fenêtre
 
         JPanel panel = new JPanel();
         JButton saveButton = new JButton("Save Graph");
@@ -38,7 +40,7 @@ public class GraphVisualizer extends JFrame {
                 double longitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex longitude:"));
                 Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
                 graph.addVertex(vertex);
-                repaint();
+                drawingPanel.repaint();
             }
         });
 
@@ -53,7 +55,7 @@ public class GraphVisualizer extends JFrame {
                 if (source != null && destination != null) {
                     Edge edge = new Edge(edgeId, source, destination, weight);
                     graph.addEdge(edge);
-                    repaint();
+                    drawingPanel.repaint();
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -66,7 +68,7 @@ public class GraphVisualizer extends JFrame {
                 Vertex vertex = graph.getVertexById(vertexId);
                 if (vertex != null) {
                     graph.removeVertex(vertex);
-                    repaint();
+                    drawingPanel.repaint();
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -79,7 +81,7 @@ public class GraphVisualizer extends JFrame {
                 Edge edge = graph.getEdgeById(edgeId);
                 if (edge != null) {
                     graph.removeEdge(edge);
-                    repaint();
+                    drawingPanel.repaint();
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid edge ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -90,7 +92,16 @@ public class GraphVisualizer extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 zoomLevel = zoomSlider.getValue();
                 zoomLabel.setText("Zoom Level: " + zoomLevel);
-                repaint();
+
+                // Ajuste la taille préférée du DrawingPanel en fonction du niveau de zoom
+                int width = drawingPanel.getPreferredSize().width * zoomLevel / 10;
+                int height = drawingPanel.getPreferredSize().height * zoomLevel / 10;
+                drawingPanel.setPreferredSize(new Dimension(width, height));
+
+                // Met à jour les barres de défilement du JScrollPane
+                scrollPane.revalidate();
+
+                drawingPanel.repaint();
             }
         });
 
@@ -101,23 +112,35 @@ public class GraphVisualizer extends JFrame {
         panel.add(deleteEdgeButton);
         panel.add(zoomLabel);
         panel.add(zoomSlider);
-        add(panel, BorderLayout.SOUTH);
+
+        // Crée le panel de dessin et le JScrollPane
+        drawingPanel = new DrawingPanel();
+        drawingPanel.setPreferredSize(new Dimension(1000, 600)); // Ajuste cette taille selon vos besoins
+        scrollPane = new JScrollPane(drawingPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        add(panel, BorderLayout.NORTH); // Changement de la position des boutons
+        add(scrollPane, BorderLayout.CENTER);
     }
 
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        for (Vertex vertex : graph.getVertices()) {
-            int x = (int) (vertex.getLongitude() * zoomLevel);
-            int y = (int) (vertex.getLatitude() * zoomLevel);
-            g.fillOval(x, y, 5, 5);
-        }
-        for (Edge edge : graph.getEdges()) {
-            int x1 = (int) (edge.getSource().getLongitude() * zoomLevel);
-            int y1 = (int) (edge.getSource().getLatitude() * zoomLevel);
-            int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel);
-            int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel);
-            g.drawLine(x1, y1, x2, y2);
+    // Classe interne pour le panneau de dessin
+    class DrawingPanel extends JPanel {
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            for (Vertex vertex : graph.getVertices()) {
+                int x = (int) (vertex.getLongitude() * zoomLevel);
+                int y = (int) (vertex.getLatitude() * zoomLevel);
+                g.fillOval(x, y, 5, 5);
+            }
+            for (Edge edge : graph.getEdges()) {
+                int x1 = (int) (edge.getSource().getLongitude() * zoomLevel);
+                int y1 = (int) (edge.getSource().getLatitude() * zoomLevel);
+                int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel);
+                int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel);
+                g.drawLine(x1, y1, x2, y2);
+            }
         }
     }
 
