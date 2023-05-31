@@ -2,14 +2,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class GraphVisualizer extends JFrame {
     private Graph graph;
+    private int zoomLevel = 10; // Valeur initiale du zoom
+    private JLabel zoomLabel;
 
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1000, 600);
 
         JPanel panel = new JPanel();
         JButton saveButton = new JButton("Save Graph");
@@ -17,11 +21,12 @@ public class GraphVisualizer extends JFrame {
         JButton addEdgeButton = new JButton("Add Edge");
         JButton deleteVertexButton = new JButton("Delete Vertex");
         JButton deleteEdgeButton = new JButton("Delete Edge");
-        JButton zoomButton = new JButton("Zoom");
+        JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, zoomLevel); // Paramètres du JSlider
+        zoomLabel = new JLabel("Zoom Level: " + zoomLevel); // Label explicatif du zoom
 
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                GraphSaver.saveGraph(graph, "src/graph.csv");
+                GraphSaver.saveGraph(graph, "graph.csv");
             }
         });
 
@@ -81,9 +86,11 @@ public class GraphVisualizer extends JFrame {
             }
         });
 
-        zoomButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Add code to handle zooming the graph
+        zoomSlider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                zoomLevel = zoomSlider.getValue();
+                zoomLabel.setText("Zoom Level: " + zoomLevel);
+                repaint();
             }
         });
 
@@ -92,7 +99,8 @@ public class GraphVisualizer extends JFrame {
         panel.add(addEdgeButton);
         panel.add(deleteVertexButton);
         panel.add(deleteEdgeButton);
-        panel.add(zoomButton);
+        panel.add(zoomLabel);
+        panel.add(zoomSlider);
         add(panel, BorderLayout.SOUTH);
     }
 
@@ -100,15 +108,15 @@ public class GraphVisualizer extends JFrame {
     public void paint(Graphics g) {
         super.paint(g);
         for (Vertex vertex : graph.getVertices()) {
-            int x = (int) (vertex.getLongitude() * 10);
-            int y = (int) (vertex.getLatitude() * 10);
+            int x = (int) (vertex.getLongitude() * zoomLevel);
+            int y = (int) (vertex.getLatitude() * zoomLevel);
             g.fillOval(x, y, 5, 5);
         }
         for (Edge edge : graph.getEdges()) {
-            int x1 = (int) (edge.getSource().getLongitude() * 10);
-            int y1 = (int) (edge.getSource().getLatitude() * 10);
-            int x2 = (int) (edge.getDestination().getLongitude() * 10);
-            int y2 = (int) (edge.getDestination().getLatitude() * 10);
+            int x1 = (int) (edge.getSource().getLongitude() * zoomLevel);
+            int y1 = (int) (edge.getSource().getLatitude() * zoomLevel);
+            int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel);
+            int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel);
             g.drawLine(x1, y1, x2, y2);
         }
     }
