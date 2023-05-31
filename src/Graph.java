@@ -52,4 +52,23 @@ public class Graph {
         }
         return edgesFromVertex;
     }
+
+    public Vertex getVertexById(String id) {
+        for (Vertex vertex : vertices) {
+            if (vertex.getId().equals(id)) {
+                return vertex;
+            }
+        }
+        return null;
+    }
+
+    public Edge getEdgeById(String id) {
+        for (Edge edge : edges) {
+            if (edge.getId().equals(id)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
 }
