@@ -10,7 +10,7 @@ public class GraphLoader {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
+                String[] parts = line.split(";");
                 if (parts[0].equals("VERTEX")) {
                     String id = parts[1];
                     String name = parts[2];
@@ -32,6 +32,7 @@ public class GraphLoader {
                     if (source != null && destination != null) {
                         Edge edge = new Edge(id, source, destination, weight);
                         graph.addEdge(edge);
+
                     }
                 }
             }

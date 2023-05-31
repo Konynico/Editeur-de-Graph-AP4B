@@ -7,12 +7,12 @@ public class GraphSaver {
     public static void saveGraph(Graph graph, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (Vertex vertex : graph.getVertices()) {
-                String line = String.format("VERTEX,%s,%s,%f,%f\n",
+                String line = String.format("VERTEX;%s;%s;%s;%s\n",
                         vertex.getId(), vertex.getName(), vertex.getLatitude(), vertex.getLongitude());
                 writer.write(line);
             }
             for (Edge edge : graph.getEdges()) {
-                String line = String.format("EDGE,%s,%s,%s,%f\n",
+                String line = String.format("EDGE;%s;%s;%s;%s\n",
                         edge.getId(), edge.getSource().getId(), edge.getDestination().getId(), edge.getWeight());
                 writer.write(line);
             }

@@ -28,7 +28,7 @@ public class GraphVisualizer extends JFrame {
 
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                GraphSaver.saveGraph(graph, "graph.csv");
+                GraphSaver.saveGraph(graph, "src/graph.csv");
             }
         });
 
@@ -102,6 +102,7 @@ public class GraphVisualizer extends JFrame {
                 scrollPane.revalidate();
 
                 drawingPanel.repaint();
+
             }
         });
 
