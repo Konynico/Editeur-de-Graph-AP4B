@@ -1,11 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.awt.event.*;
+import java.awt.geom.Line2D;
+import javax.swing.event.*;
 
 public class GraphVisualizer extends JFrame {
     private Graph graph;
@@ -83,7 +80,7 @@ public class GraphVisualizer extends JFrame {
 
         deleteVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String vertexId = JOptionPane.showInputDialog("Enter vertex ID to delete:");
+                String vertexId = JOptionPane.showInputDialog("Enter vertex ID:");
                 Vertex vertex = graph.getVertexById(vertexId);
                 if (vertex != null) {
                     graph.removeVertex(vertex);
@@ -97,7 +94,7 @@ public class GraphVisualizer extends JFrame {
 
         deleteEdgeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String edgeId = JOptionPane.showInputDialog("Enter edge ID to delete:");
+                String edgeId = JOptionPane.showInputDialog("Enter edge ID:");
                 Edge edge = graph.getEdgeById(edgeId);
                 if (edge != null) {
                     graph.removeEdge(edge);
@@ -113,15 +110,6 @@ public class GraphVisualizer extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 zoomLevel = zoomSlider.getValue();
                 zoomLabel.setText("Zoom Level: " + zoomLevel);
-
-                // Ajuste la taille préférée du DrawingPanel en fonction du niveau de zoom
-                int width = drawingPanel.getPreferredSize().width * zoomLevel / 10;
-                int height = drawingPanel.getPreferredSize().height * zoomLevel / 10;
-                drawingPanel.setPreferredSize(new Dimension(width, height));
-
-                // Met à jour les barres de défilement du JScrollPane
-                scrollPane.revalidate();
-
                 drawingPanel.repaint();
             }
         });
@@ -131,57 +119,107 @@ public class GraphVisualizer extends JFrame {
         panel.add(addEdgeButton);
         panel.add(deleteVertexButton);
         panel.add(deleteEdgeButton);
-        panel.add(zoomLabel);
         panel.add(zoomSlider);
+        panel.add(zoomLabel);
 
-        // Crée le panel de dessin et le JScrollPane
         drawingPanel = new DrawingPanel();
-        drawingPanel.setPreferredSize(new Dimension(1000, 600)); // Ajuste cette taille selon vos besoins
         scrollPane = new JScrollPane(drawingPanel);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-        add(panel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+        add(panel, BorderLayout.NORTH);
+
+        setVisible(true);
     }
 
-    // Classe interne pour le panneau de dessin
-    class DrawingPanel extends JPanel {
-        @Override
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            for (Vertex vertex : graph.getVertices()) {
-                int x = (int) (vertex.getLongitude() * zoomLevel);
-                int y = (int) (vertex.getLatitude() * zoomLevel);
-                g.fillOval(x, y, 5, 5);
-            }
-            for (Edge edge : graph.getEdges()) {
-                int x1 = (int) (edge.getSource().getLongitude() * zoomLevel) + 2; // Ajustement de la position en x
-                int y1 = (int) (edge.getSource().getLatitude() * zoomLevel) + 2; // Ajustement de la position en y
-                int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel) + 2; // Ajustement de la position en x
-                int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel) + 2; // Ajustement de la position en y
-                g.drawLine(x1, y1, x2, y2);
-            }
+    private void showExitConfirmationDialog() {
+        int choice = JOptionPane.showConfirmDialog(null, "The graph has unsaved changes. Are you sure you want to exit?", "Exit Confirmation", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            dispose();
         }
     }
 
-
-    public void showGraph() {
-        SwingUtilities.invokeLater(() -> {
-            setVisible(true);
-        });
-    }
-
-    // Méthode pour afficher la boîte de dialogue de confirmation de sauvegarde
     private void showSaveConfirmationDialog() {
-        JOptionPane.showMessageDialog(this, "Graph saved successfully.", "Save Confirmation", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "The graph has been saved successfully.", "Save Confirmation", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Méthode pour afficher la boîte de dialogue de confirmation de sortie
-    private void showExitConfirmationDialog() {
-        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit without saving?", "Exit Confirmation", JOptionPane.YES_NO_OPTION);
-        if (choice == JOptionPane.YES_OPTION) {
-            dispose(); // Ferme la fenêtre si l'utilisateur confirme la sortie sans sauvegarde
+    private class DrawingPanel extends JPanel {
+        private static final int POINT_RADIUS = 5; // Rayon des points
+        private static final int EDGE_THICKNESS = 3; // Epaisseur des arêtes
+
+
+        public DrawingPanel() {
+            setPreferredSize(new Dimension(2000, 2000)); // Dimension du panneau de dessin
+            setBackground(Color.WHITE);
+
+            addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    Vertex hoveredVertex = getVertexAt(e.getX(), e.getY());
+                    Edge hoveredEdge = getEdgeAt(e.getX(), e.getY());
+                    if (hoveredVertex != null) {
+                        setToolTipText("id: "+hoveredVertex.getId());
+                    } else if (hoveredEdge != null) {
+                        setToolTipText("id: "+hoveredEdge.getId());
+                    } else {
+                        setToolTipText(null);
+                    }
+                }
+            });
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    Vertex selectedVertex = getVertexAt(e.getX(), e.getY());
+                    Edge selectedEdge = getEdgeAt(e.getX(), e.getY());
+                    if (selectedVertex != null) {
+                        showVertexInformation(selectedVertex);
+                    } else if (selectedEdge != null) {
+                        showEdgeInformation(selectedEdge);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setStroke(new BasicStroke(EDGE_THICKNESS)); // Définir l'épaisseur de la ligne
+            g2d.setColor(Color.BLACK);
+            for (Edge edge : graph.getEdges()) {
+                g2d.drawLine((int) (edge.getSource().getLongitude() * zoomLevel), (int) (edge.getSource().getLatitude() * zoomLevel), (int) (edge.getDestination().getLongitude() * zoomLevel), (int) (edge.getDestination().getLatitude() * zoomLevel));
+            }
+            for (Vertex vertex : graph.getVertices()) {
+                g2d.fillOval((int) (vertex.getLongitude() * zoomLevel) - POINT_RADIUS, (int) (vertex.getLatitude() * zoomLevel) - POINT_RADIUS, POINT_RADIUS * 2, POINT_RADIUS * 2);
+            }
+        }
+
+        private Edge getEdgeAt(int x, int y) {
+            for (Edge edge : graph.getEdges()) {
+                double distance = Line2D.ptSegDist(edge.getSource().getLongitude() * zoomLevel, edge.getSource().getLatitude() * zoomLevel, edge.getDestination().getLongitude() * zoomLevel, edge.getDestination().getLatitude() * zoomLevel, x, y);
+                if (distance <= EDGE_THICKNESS / 2.0) { // Distance correspondant à la moitié de l'épaisseur de la ligne
+                    return edge;
+                }
+            }
+            return null;
+        }
+
+        private Vertex getVertexAt(int x, int y) {
+            for (Vertex vertex : graph.getVertices()) {
+                int dx = x - (int) (vertex.getLongitude() * zoomLevel);
+                int dy = y - (int) (vertex.getLatitude() * zoomLevel);
+                if (dx * dx + dy * dy <= POINT_RADIUS * POINT_RADIUS) {
+                    return vertex;
+                }
+            }
+            return null;
+        }
+
+        private void showVertexInformation(Vertex vertex) {
+            JOptionPane.showMessageDialog(null, "Vertex ID: " + vertex.getId() + "\nVertex name: " + vertex.getName() + "\nLatitude: " + vertex.getLatitude() + "\nLongitude: " + vertex.getLongitude(), "Vertex Information", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        private void showEdgeInformation(Edge edge) {
+            JOptionPane.showMessageDialog(null, "Edge ID: " + edge.getId() + "\nSource vertex ID: " + edge.getSource().getId() + "\nDestination vertex ID: " + edge.getDestination().getId() + "\nWeight: " + edge.getWeight(), "Edge Information", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }
