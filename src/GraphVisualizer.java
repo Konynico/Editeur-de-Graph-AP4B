@@ -12,6 +12,11 @@ public class GraphVisualizer extends JFrame {
     private DrawingPanel drawingPanel;
     private boolean isSaved = true; // Variable pour garder une trace de l'état de sauvegarde
 
+    // Variables pour les couleurs de thème
+    private Color backgroundColor;
+    private Color edgeColor;
+    private Color vertexColor;
+
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // Désactiver la fermeture par défaut
@@ -29,7 +34,12 @@ public class GraphVisualizer extends JFrame {
             }
         });
 
+        backgroundColor = Color.WHITE;
+        edgeColor = Color.BLACK;
+        vertexColor = Color.BLACK;
+
         JPanel panel = new JPanel();
+        JButton darkModeButton = new JButton("Dark Mode");
         JButton saveButton = new JButton("Save Graph");
         JButton addVertexButton = new JButton("Add Vertex");
         JButton addEdgeButton = new JButton("Add Edge");
@@ -114,6 +124,37 @@ public class GraphVisualizer extends JFrame {
             }
         });
 
+        darkModeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Color darkModeBackgroundColor = new Color(60, 63, 65);
+                Color darkModeForegroundColor = Color.WHITE;
+                Color darkModeEdgeColor = Color.WHITE;
+                Color darkModeVertexColor = Color.WHITE;
+                Color lightModeBackgroundColor = Color.WHITE;
+                Color lightModeForegroundColor = Color.BLACK;
+                Color lightModeEdgeColor = Color.BLACK;
+                Color lightModeVertexColor = Color.BLACK;
+
+                if (darkModeButton.getText().equals("Dark Mode")) {
+                    // Passer en dark mode
+                    backgroundColor = darkModeBackgroundColor;
+                    edgeColor = darkModeEdgeColor;
+                    vertexColor = darkModeVertexColor;
+                    darkModeButton.setText("Light Mode");
+                } else {
+                    // Passer en light mode
+                    backgroundColor = lightModeBackgroundColor;
+                    edgeColor = lightModeEdgeColor;
+                    vertexColor = lightModeVertexColor;
+                    darkModeButton.setText("Dark Mode");
+                }
+                getContentPane().setBackground(backgroundColor);
+                drawingPanel.setBackground(backgroundColor);
+                drawingPanel.repaint();
+            }
+        });
+
+        panel.add(darkModeButton);
         panel.add(saveButton);
         panel.add(addVertexButton);
         panel.add(addEdgeButton);
@@ -144,7 +185,6 @@ public class GraphVisualizer extends JFrame {
     private class DrawingPanel extends JPanel {
         private static final int POINT_RADIUS = 5; // Rayon des points
         private static final int EDGE_THICKNESS = 2; // Epaisseur des arêtes
-
 
         public DrawingPanel() {
             setPreferredSize(new Dimension(2000, 2000)); // Dimension du panneau de dessin
@@ -183,11 +223,12 @@ public class GraphVisualizer extends JFrame {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
-            g2d.setStroke(new BasicStroke(EDGE_THICKNESS)); // Définir l'épaisseur de la ligne
-            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(EDGE_THICKNESS));
+            g2d.setColor(edgeColor);
             for (Edge edge : graph.getEdges()) {
                 g2d.drawLine((int) (edge.getSource().getLongitude() * zoomLevel), (int) (edge.getSource().getLatitude() * zoomLevel), (int) (edge.getDestination().getLongitude() * zoomLevel), (int) (edge.getDestination().getLatitude() * zoomLevel));
             }
+            g2d.setColor(vertexColor);
             for (Vertex vertex : graph.getVertices()) {
                 g2d.fillOval((int) (vertex.getLongitude() * zoomLevel) - POINT_RADIUS, (int) (vertex.getLatitude() * zoomLevel) - POINT_RADIUS, POINT_RADIUS * 2, POINT_RADIUS * 2);
             }
