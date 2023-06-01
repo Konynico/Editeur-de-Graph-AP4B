@@ -43,4 +43,16 @@ public class Vertex {
     public int hashCode() {
         return id.hashCode();
     }
+
+    public void setName(String newVertexName) {
+        this.name = newVertexName;
+    }
+
+    public void setLatitude(double newLatitude) {
+        this.latitude = newLatitude;
+    }
+
+    public void setLongitude(double newLongitude) {
+        this.longitude = newLongitude;
+    }
 }

@@ -43,4 +43,8 @@ public class Edge {
     public int hashCode() {
         return id.hashCode();
     }
+
+    public void setWeight(double newWeight) {
+        this.weight = newWeight;
+    }
 }

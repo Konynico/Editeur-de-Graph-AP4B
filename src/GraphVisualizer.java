@@ -143,7 +143,7 @@ public class GraphVisualizer extends JFrame {
 
     private class DrawingPanel extends JPanel {
         private static final int POINT_RADIUS = 5; // Rayon des points
-        private static final int EDGE_THICKNESS = 3; // Epaisseur des arêtes
+        private static final int EDGE_THICKNESS = 2; // Epaisseur des arêtes
 
 
         public DrawingPanel() {
@@ -215,11 +215,60 @@ public class GraphVisualizer extends JFrame {
         }
 
         private void showVertexInformation(Vertex vertex) {
-            JOptionPane.showMessageDialog(null, "Vertex ID: " + vertex.getId() + "\nVertex name: " + vertex.getName() + "\nLatitude: " + vertex.getLatitude() + "\nLongitude: " + vertex.getLongitude(), "Vertex Information", JOptionPane.INFORMATION_MESSAGE);
+            // Création d'un JOptionPane avec un bouton de modification
+            final JOptionPane pane = new JOptionPane("Vertex ID: " + vertex.getId() + "\nVertex name: " + vertex.getName() + "\nLatitude: " + vertex.getLatitude() + "\nLongitude: " + vertex.getLongitude(), JOptionPane.INFORMATION_MESSAGE);
+            final JDialog dialog = pane.createDialog(null, "Vertex Information");
+            dialog.setModal(false);  // Définir le dialogue comme non modal
+            JButton editButton = new JButton("Edit");
+            editButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    String oldVertexName = vertex.getName();
+                    String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
+
+                    String oldLatitude = String.valueOf(vertex.getLatitude());
+                    String newLatitude = JOptionPane.showInputDialog(null, "Enter new vertex latitude:", oldLatitude);
+
+                    String oldLongitude = String.valueOf(vertex.getLongitude());
+                    String newLongitude = JOptionPane.showInputDialog(null, "Enter new vertex longitude:", oldLongitude);
+
+                    vertex.setName(newVertexName);
+                    vertex.setLatitude(Double.parseDouble(newLatitude));
+                    vertex.setLongitude(Double.parseDouble(newLongitude));
+
+                    dialog.dispose(); // Fermer le dialogue
+                    drawingPanel.repaint();
+                    isSaved = false;  // Mettre à jour l'état de sauvegarde
+                    JOptionPane.showMessageDialog(null, "The vertex has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+
+            pane.setOptions(new Object[]{editButton});
+            dialog.setVisible(true);
         }
 
+
+
         private void showEdgeInformation(Edge edge) {
-            JOptionPane.showMessageDialog(null, "Edge ID: " + edge.getId() + "\nSource vertex ID: " + edge.getSource().getId() + "\nDestination vertex ID: " + edge.getDestination().getId() + "\nWeight: " + edge.getWeight(), "Edge Information", JOptionPane.INFORMATION_MESSAGE);
+            // Création d'un JOptionPane avec un bouton de modification
+            final JOptionPane pane = new JOptionPane("Edge ID: " + edge.getId() + "\nSource vertex ID: " + edge.getSource().getId() + "\nDestination vertex ID: " + edge.getDestination().getId() + "\nWeight: " + edge.getWeight(), JOptionPane.INFORMATION_MESSAGE);
+            final JDialog dialog = pane.createDialog(null, "Edge Information");
+            dialog.setModal(false);  // Définir le dialogue comme non modal
+            JButton editButton = new JButton("Edit");
+            editButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    String oldWeight = String.valueOf(edge.getWeight());
+                    String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
+                    edge.setWeight(Double.parseDouble(newWeight));
+                    dialog.dispose(); // Fermer le dialogue
+                    drawingPanel.repaint();
+                    isSaved = false;  // Mettre à jour l'état de sauvegarde
+                    JOptionPane.showMessageDialog(null, "The edge has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+
+            pane.setOptions(new Object[]{editButton});
+            dialog.setVisible(true);
         }
+
     }
 }
