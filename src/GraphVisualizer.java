@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -11,11 +13,24 @@ public class GraphVisualizer extends JFrame {
     private JLabel zoomLabel;
     private JScrollPane scrollPane;
     private DrawingPanel drawingPanel;
+    private boolean isSaved = true; // Variable pour garder une trace de l'état de sauvegarde
 
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // Désactiver la fermeture par défaut
         setSize(1000, 600); // Modification de la taille de la fenêtre
+
+        // Ajouter un WindowListener pour intercepter l'événement de fermeture de la fenêtre
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (isSaved) {
+                    dispose(); // Ferme la fenêtre directement si sauvegardé
+                } else {
+                    showExitConfirmationDialog();
+                }
+            }
+        });
 
         JPanel panel = new JPanel();
         JButton saveButton = new JButton("Save Graph");
@@ -29,6 +44,8 @@ public class GraphVisualizer extends JFrame {
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 GraphSaver.saveGraph(graph, "src/graph.csv");
+                isSaved = true; // Mettre à jour l'état de sauvegarde
+                showSaveConfirmationDialog();
             }
         });
 
@@ -41,6 +58,7 @@ public class GraphVisualizer extends JFrame {
                 Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
                 graph.addVertex(vertex);
                 drawingPanel.repaint();
+                isSaved = false; // Mettre à jour l'état de sauvegarde
             }
         });
 
@@ -56,6 +74,7 @@ public class GraphVisualizer extends JFrame {
                     Edge edge = new Edge(edgeId, source, destination, weight);
                     graph.addEdge(edge);
                     drawingPanel.repaint();
+                    isSaved = false; // Mettre à jour l'état de sauvegarde
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -69,6 +88,7 @@ public class GraphVisualizer extends JFrame {
                 if (vertex != null) {
                     graph.removeVertex(vertex);
                     drawingPanel.repaint();
+                    isSaved = false; // Mettre à jour l'état de sauvegarde
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -82,6 +102,7 @@ public class GraphVisualizer extends JFrame {
                 if (edge != null) {
                     graph.removeEdge(edge);
                     drawingPanel.repaint();
+                    isSaved = false; // Mettre à jour l'état de sauvegarde
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid edge ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -102,7 +123,6 @@ public class GraphVisualizer extends JFrame {
                 scrollPane.revalidate();
 
                 drawingPanel.repaint();
-
             }
         });
 
@@ -121,7 +141,7 @@ public class GraphVisualizer extends JFrame {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        add(panel, BorderLayout.NORTH); // Changement de la position des boutons
+        add(panel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
     }
 
@@ -136,18 +156,32 @@ public class GraphVisualizer extends JFrame {
                 g.fillOval(x, y, 5, 5);
             }
             for (Edge edge : graph.getEdges()) {
-                int x1 = (int) (edge.getSource().getLongitude() * zoomLevel);
-                int y1 = (int) (edge.getSource().getLatitude() * zoomLevel);
-                int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel);
-                int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel);
+                int x1 = (int) (edge.getSource().getLongitude() * zoomLevel) + 2; // Ajustement de la position en x
+                int y1 = (int) (edge.getSource().getLatitude() * zoomLevel) + 2; // Ajustement de la position en y
+                int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel) + 2; // Ajustement de la position en x
+                int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel) + 2; // Ajustement de la position en y
                 g.drawLine(x1, y1, x2, y2);
             }
         }
     }
 
+
     public void showGraph() {
         SwingUtilities.invokeLater(() -> {
             setVisible(true);
         });
+    }
+
+    // Méthode pour afficher la boîte de dialogue de confirmation de sauvegarde
+    private void showSaveConfirmationDialog() {
+        JOptionPane.showMessageDialog(this, "Graph saved successfully.", "Save Confirmation", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Méthode pour afficher la boîte de dialogue de confirmation de sortie
+    private void showExitConfirmationDialog() {
+        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit without saving?", "Exit Confirmation", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            dispose(); // Ferme la fenêtre si l'utilisateur confirme la sortie sans sauvegarde
+        }
     }
 }
