@@ -12,6 +12,10 @@ public class Edge {
         this.source = source;
         this.destination = destination;
         this.weight = weight;
+
+        // Ajouter l'arête à la liste des arcs de chaque vertex
+        source.addOutgoingEdge(this);
+        destination.addIncomingEdge(this);
     }
 
     public String getId() {

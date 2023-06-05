@@ -17,25 +17,35 @@ public class ShortestPathCalculator {
 
         while (!queue.isEmpty()) {
             Vertex current = queue.poll();
+            if (current.equals(destination)) {
+                break; // Sortir de la boucle si la destination est atteinte
+            }
+            double currentDistance = shortestDistances.get(current);
             for (Edge edge : graph.getEdgesFrom(current)) {
                 Vertex neighbor = edge.getDestination();
-                double distanceThroughCurrent = shortestDistances.get(current) + edge.getWeight();
-                if (distanceThroughCurrent < shortestDistances.get(neighbor)) {
-                    queue.remove(neighbor);
-                    shortestDistances.put(neighbor, distanceThroughCurrent);
+                double distance = currentDistance + edge.getWeight();
+                if (distance < shortestDistances.get(neighbor)) {
+                    shortestDistances.put(neighbor, distance);
                     predecessorMap.put(neighbor, edge);
                     queue.add(neighbor);
                 }
             }
         }
 
-        List<Edge> path = new ArrayList<>();
-        for (Edge edge = predecessorMap.get(destination); edge != null; edge = predecessorMap.get(edge.getSource())) {
-            path.add(0, edge);
-        }
+        List<Edge> path = reconstructPath(predecessorMap, destination);
 
         colorShortestPath(graph, path);
 
+        return path;
+    }
+
+    private static List<Edge> reconstructPath(Map<Vertex, Edge> predecessorMap, Vertex destination) {
+        List<Edge> path = new ArrayList<>();
+        Edge edge = predecessorMap.get(destination);
+        while (edge != null) {
+            path.add(0, edge);
+            edge = predecessorMap.get(edge.getSource());
+        }
         return path;
     }
 
