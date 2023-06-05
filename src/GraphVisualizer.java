@@ -22,7 +22,7 @@ public class GraphVisualizer extends JFrame {
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // Désactiver la fermeture par défaut
-        setSize(1000, 600); // Modification de la taille de la fenêtre
+        setSize(1200, 800); // Modification de la taille de la fenêtre
 
         // Ajouter un WindowListener pour intercepter l'événement de fermeture de la fenêtre
         addWindowListener(new WindowAdapter() {
@@ -47,7 +47,7 @@ public class GraphVisualizer extends JFrame {
         JButton addEdgeButton = new JButton("Add Edge");
         JButton deleteVertexButton = new JButton("Delete Vertex");
         JButton deleteEdgeButton = new JButton("Delete Edge");
-        JButton calculatePathButton = new JButton("Calculate Path"); // Bouton pour calculer le chemin le plus court
+        JButton calculatePathButton = new JButton("Calculate Shortest Path"); // Bouton pour calculer le chemin le plus court
         JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, zoomLevel); // Paramètres du JSlider
         zoomLabel = new JLabel("Zoom Level: " + zoomLevel); // Label explicatif du zoom
 
@@ -142,9 +142,6 @@ public class GraphVisualizer extends JFrame {
                 zoomLevel = zoomSlider.getValue();
                 zoomLabel.setText("Zoom Level: " + zoomLevel);
                 drawingPanel.repaint();
-
-
-
             }
         });
 
@@ -211,7 +208,10 @@ public class GraphVisualizer extends JFrame {
         private static final int POINT_RADIUS = 5; // Rayon des points
         private static final int EDGE_THICKNESS = 2; // Epaisseur des arêtes
 
+        private JSlider zoomSlider;
+
         public DrawingPanel(JSlider zoomSlider) {
+            this.zoomSlider = zoomSlider;
             setPreferredSize(new Dimension(2000, 2000)); // Dimension du panneau de dessin
             setBackground(Color.WHITE);
 
@@ -241,8 +241,6 @@ public class GraphVisualizer extends JFrame {
                         showEdgeInformation(selectedEdge);
                     }
                 }
-
-
             });
 
             addMouseWheelListener(new MouseAdapter() {
@@ -253,7 +251,6 @@ public class GraphVisualizer extends JFrame {
                         if (zoomLevel < 20){
                             zoomLevel++;
                         }
-
                     } else {
                         zoomLevel--;
                         if (zoomLevel < 1) {
@@ -318,7 +315,7 @@ public class GraphVisualizer extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String oldVertexName = vertex.getName();
                     String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
-                    //quitte la fenetre si le bouton annuler est cliqué
+                    // Quitte la fenetre si le bouton Annuler est cliqué
                     if (newVertexName == null) {
                         dialog.dispose();
                         return;
@@ -333,7 +330,7 @@ public class GraphVisualizer extends JFrame {
                         dialog.dispose();
                         return;
                     } else {
-                        //vérifie si la latitude est bien un double
+                        // Vérifie si la latitude est bien un double
                         try {
                             Double.parseDouble(newLatitude);
                         } catch (NumberFormatException nfe) {
@@ -349,7 +346,7 @@ public class GraphVisualizer extends JFrame {
                         dialog.dispose();
                         return;
                     } else {
-                        //vérifie si la longitude est bien un double
+                        // Vérifie si la longitude est bien un double
                         try {
                             Double.parseDouble(newLongitude);
                         } catch (NumberFormatException nfe) {
@@ -380,12 +377,12 @@ public class GraphVisualizer extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String oldWeight = String.valueOf(edge.getWeight());
                     String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
-                    //quitte la fenetre si le bouton annuler est cliqué
+                    // Quitte la fenêtre si le bouton Annuler est cliqué
                     if (newWeight == null) {
                         dialog.dispose();
                         return;
                     } else {
-                        //vérifie si le poids est bien un double
+                        // Vérifie si le poids est bien un double
                         try {
                             Double.parseDouble(newWeight);
                         } catch (NumberFormatException nfe) {
