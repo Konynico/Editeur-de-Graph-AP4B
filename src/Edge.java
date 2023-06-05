@@ -1,8 +1,11 @@
+import java.awt.*;
+
 public class Edge {
     private String id;
     private Vertex source;
     private Vertex destination;
     private double weight;
+    private Color color; // Déclaration de la variable color
 
     public Edge(String id, Vertex source, Vertex destination, double weight) {
         this.id = id;
@@ -27,6 +30,18 @@ public class Edge {
         return weight;
     }
 
+    public void setWeight(double newWeight) {
+        this.weight = newWeight;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -42,9 +57,5 @@ public class Edge {
     @Override
     public int hashCode() {
         return id.hashCode();
-    }
-
-    public void setWeight(double newWeight) {
-        this.weight = newWeight;
     }
 }

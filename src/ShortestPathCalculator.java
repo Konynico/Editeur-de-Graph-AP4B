@@ -1,4 +1,6 @@
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class ShortestPathCalculator {
 
@@ -31,6 +33,19 @@ public class ShortestPathCalculator {
         for (Edge edge = predecessorMap.get(destination); edge != null; edge = predecessorMap.get(edge.getSource())) {
             path.add(0, edge);
         }
+
+        colorShortestPath(graph, path);
+
         return path;
+    }
+
+    private static void colorShortestPath(Graph graph, List<Edge> path) {
+        for (Edge edge : graph.getEdges()) {
+            edge.setColor(null); // Réinitialiser la couleur de tous les arcs
+        }
+
+        for (Edge edge : path) {
+            edge.setColor(Color.RED); // Colorer les arcs du plus court chemin en rouge
+        }
     }
 }

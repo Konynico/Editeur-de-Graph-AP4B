@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 import javax.swing.event.*;
+import java.util.*;
 import java.util.List;
 
 public class GraphVisualizer extends JFrame {
@@ -21,7 +22,7 @@ public class GraphVisualizer extends JFrame {
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // Désactiver la fermeture par défaut
-        setSize(1200, 600); // Modification de la taille de la fenêtre
+        setSize(1000, 600); // Modification de la taille de la fenêtre
 
         // Ajouter un WindowListener pour intercepter l'événement de fermeture de la fenêtre
         addWindowListener(new WindowAdapter() {
@@ -46,7 +47,7 @@ public class GraphVisualizer extends JFrame {
         JButton addEdgeButton = new JButton("Add Edge");
         JButton deleteVertexButton = new JButton("Delete Vertex");
         JButton deleteEdgeButton = new JButton("Delete Edge");
-        JButton calculateShortestPathButton = new JButton("Calculate Shortest Path");
+        JButton calculatePathButton = new JButton("Calculate Path"); // Bouton pour calculer le chemin le plus court
         JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, zoomLevel); // Paramètres du JSlider
         zoomLabel = new JLabel("Zoom Level: " + zoomLevel); // Label explicatif du zoom
 
@@ -118,7 +119,7 @@ public class GraphVisualizer extends JFrame {
             }
         });
 
-        calculateShortestPathButton.addActionListener(new ActionListener() {
+        calculatePathButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
                 String destinationId = JOptionPane.showInputDialog("Enter destination vertex ID:");
@@ -126,14 +127,9 @@ public class GraphVisualizer extends JFrame {
                 Vertex destination = graph.getVertexById(destinationId);
                 if (source != null && destination != null) {
                     List<Edge> shortestPath = ShortestPathCalculator.calculateShortestPath(graph, source, destination);
-                    if (!shortestPath.isEmpty()) {
-                        StringBuilder message = new StringBuilder();
-                        for (Edge edge : shortestPath) {
-                            message.append(edge.getId()).append("\n");
-                        }
-                        JOptionPane.showMessageDialog(null, "Shortest path:\n" + message.toString(), "Shortest Path", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "No path found between the specified vertices.", "Error", JOptionPane.ERROR_MESSAGE);
+                    drawingPanel.repaint();
+                    if (shortestPath.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "No path found between the source and destination vertices.", "Path Calculation", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
@@ -185,7 +181,7 @@ public class GraphVisualizer extends JFrame {
         panel.add(addEdgeButton);
         panel.add(deleteVertexButton);
         panel.add(deleteEdgeButton);
-        panel.add(calculateShortestPathButton);
+        panel.add(calculatePathButton);
         panel.add(zoomSlider);
         panel.add(zoomLabel);
 
@@ -222,9 +218,9 @@ public class GraphVisualizer extends JFrame {
                     Vertex hoveredVertex = getVertexAt(e.getX(), e.getY());
                     Edge hoveredEdge = getEdgeAt(e.getX(), e.getY());
                     if (hoveredVertex != null) {
-                        setToolTipText("id: "+hoveredVertex.getId());
+                        setToolTipText("id: " + hoveredVertex.getId());
                     } else if (hoveredEdge != null) {
-                        setToolTipText("id: "+hoveredEdge.getId());
+                        setToolTipText("id: " + hoveredEdge.getId());
                     } else {
                         setToolTipText(null);
                     }
@@ -250,8 +246,12 @@ public class GraphVisualizer extends JFrame {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setStroke(new BasicStroke(EDGE_THICKNESS));
-            g2d.setColor(edgeColor);
             for (Edge edge : graph.getEdges()) {
+                if (edge.getColor() != null) {
+                    g2d.setColor(edge.getColor());
+                } else {
+                    g2d.setColor(edgeColor);
+                }
                 g2d.drawLine((int) (edge.getSource().getLongitude() * zoomLevel), (int) (edge.getSource().getLatitude() * zoomLevel), (int) (edge.getDestination().getLongitude() * zoomLevel), (int) (edge.getDestination().getLatitude() * zoomLevel));
             }
             g2d.setColor(vertexColor);
@@ -291,7 +291,7 @@ public class GraphVisualizer extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String oldVertexName = vertex.getName();
                     String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
-                    // Quitte la fenêtre si le bouton annuler est cliqué
+                    //quitte la fenetre si le bouton annuler est cliqué
                     if (newVertexName == null) {
                         dialog.dispose();
                         return;
@@ -306,7 +306,7 @@ public class GraphVisualizer extends JFrame {
                         dialog.dispose();
                         return;
                     } else {
-                        // Vérifie si la latitude est bien un double
+                        //vérifie si la latitude est bien un double
                         try {
                             Double.parseDouble(newLatitude);
                         } catch (NumberFormatException nfe) {
@@ -322,7 +322,7 @@ public class GraphVisualizer extends JFrame {
                         dialog.dispose();
                         return;
                     } else {
-                        // Vérifie si la longitude est bien un double
+                        //vérifie si la longitude est bien un double
                         try {
                             Double.parseDouble(newLongitude);
                         } catch (NumberFormatException nfe) {
@@ -334,7 +334,7 @@ public class GraphVisualizer extends JFrame {
 
                     dialog.dispose(); // Fermer le dialogue
                     drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                    isSaved = false;  // Mettre à jour l'état de sauvegarde
                     JOptionPane.showMessageDialog(null, "The vertex has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
@@ -347,25 +347,27 @@ public class GraphVisualizer extends JFrame {
             // Création d'un JOptionPane avec un bouton de modification
             final JOptionPane pane = new JOptionPane("Edge ID: " + edge.getId() + "\nSource vertex ID: " + edge.getSource().getId() + "\nDestination vertex ID: " + edge.getDestination().getId() + "\nWeight: " + edge.getWeight(), JOptionPane.INFORMATION_MESSAGE);
             final JDialog dialog = pane.createDialog(null, "Edge Information");
-            dialog.setModal(false);  // Définir le dialogue comme non modal
+            dialog.setModal(false); // Définir le dialogue comme non modal
             JButton editButton = new JButton("Edit");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String oldWeight = String.valueOf(edge.getWeight());
                     String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
+                    //quitte la fenetre si le bouton annuler est cliqué
                     if (newWeight == null) {
                         dialog.dispose();
                         return;
                     } else {
-                        // Vérifier si le poids est un nombre
+                        //vérifie si le poids est bien un double
                         try {
                             Double.parseDouble(newWeight);
-                        } catch (NumberFormatException ex) {
+                        } catch (NumberFormatException nfe) {
                             JOptionPane.showMessageDialog(null, "The weight must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         edge.setWeight(Double.parseDouble(newWeight));
                     }
+
                     dialog.dispose(); // Fermer le dialogue
                     drawingPanel.repaint();
                     isSaved = false; // Mettre à jour l'état de sauvegarde
