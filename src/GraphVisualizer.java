@@ -265,16 +265,50 @@ public class GraphVisualizer extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String oldVertexName = vertex.getName();
                     String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
+                    //quitte la fenetre si le bouton annuler est cliqué
+                    if (newVertexName == null) {
+                        dialog.dispose();
+                        return;
+                    }
+                    else {
+                        vertex.setName(newVertexName);
+                    }
 
                     String oldLatitude = String.valueOf(vertex.getLatitude());
                     String newLatitude = JOptionPane.showInputDialog(null, "Enter new vertex latitude:", oldLatitude);
 
+                    if (newLatitude == null) {
+                        dialog.dispose();
+                        return;
+                    }
+                    else {
+                        //vérifie si la latitude est bien un double
+                        try {
+                            Double.parseDouble(newLatitude);
+                        } catch (NumberFormatException nfe) {
+                            JOptionPane.showMessageDialog(null, "The latitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        vertex.setLatitude(Double.parseDouble(newLatitude));
+                    }
+
                     String oldLongitude = String.valueOf(vertex.getLongitude());
                     String newLongitude = JOptionPane.showInputDialog(null, "Enter new vertex longitude:", oldLongitude);
+                    if (newLongitude == null) {
+                        dialog.dispose();
+                        return;
+                    }
+                    else {
+                        //vérifie si la longitude est bien un double
+                        try {
+                            Double.parseDouble(newLongitude);
+                        } catch (NumberFormatException nfe) {
+                            JOptionPane.showMessageDialog(null, "The longitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        vertex.setLongitude(Double.parseDouble(newLongitude));
+                    }
 
-                    vertex.setName(newVertexName);
-                    vertex.setLatitude(Double.parseDouble(newLatitude));
-                    vertex.setLongitude(Double.parseDouble(newLongitude));
 
                     dialog.dispose(); // Fermer le dialogue
                     drawingPanel.repaint();
@@ -299,7 +333,21 @@ public class GraphVisualizer extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String oldWeight = String.valueOf(edge.getWeight());
                     String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
-                    edge.setWeight(Double.parseDouble(newWeight));
+                    if (newWeight == null) {
+                        dialog.dispose();
+                        return;
+                    }
+                    else {
+                        // Vérifier si le poids est un nombre
+                        try {
+                            Double.parseDouble(newWeight);
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(null, "The weight must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        edge.setWeight(Double.parseDouble(newWeight));
+
+                    }
                     dialog.dispose(); // Fermer le dialogue
                     drawingPanel.repaint();
                     isSaved = false;  // Mettre à jour l'état de sauvegarde
