@@ -269,13 +269,30 @@ public class GraphVisualizer extends JFrame {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.setStroke(new BasicStroke(EDGE_THICKNESS));
+
             for (Edge edge : graph.getEdges()) {
                 if (edge.getColor() != null) {
                     g2d.setColor(edge.getColor());
                 } else {
                     g2d.setColor(edgeColor);
                 }
-                g2d.drawLine((int) (edge.getSource().getLongitude() * zoomLevel), (int) (edge.getSource().getLatitude() * zoomLevel), (int) (edge.getDestination().getLongitude() * zoomLevel), (int) (edge.getDestination().getLatitude() * zoomLevel));
+
+                int x1 = (int) (edge.getSource().getLongitude() * zoomLevel);
+                int y1 = (int) (edge.getSource().getLatitude() * zoomLevel);
+                int x2 = (int) (edge.getDestination().getLongitude() * zoomLevel);
+                int y2 = (int) (edge.getDestination().getLatitude() * zoomLevel);
+
+                g2d.drawLine(x1, y1, x2, y2);
+
+                // Calcul de la position de la flèche
+                double theta = Math.atan2(y2 - y1, x2 - x1);
+                int x = (int) (x2 - (POINT_RADIUS + 5) * Math.cos(theta));
+                int y = (int) (y2 - (POINT_RADIUS + 5) * Math.sin(theta));
+
+                // Dessin de la flèche
+                int[] arrowXPoints = new int[]{x, (int) (x - 8 * Math.cos(theta + Math.PI / 6)), (int) (x - 8 * Math.cos(theta - Math.PI / 6))};
+                int[] arrowYPoints = new int[]{y, (int) (y - 8 * Math.sin(theta + Math.PI / 6)), (int) (y - 8 * Math.sin(theta - Math.PI / 6))};
+                g2d.fillPolygon(arrowXPoints, arrowYPoints, 3);
             }
 
             g2d.setColor(vertexColor);
@@ -283,6 +300,7 @@ public class GraphVisualizer extends JFrame {
                 g2d.fillOval((int) (vertex.getLongitude() * zoomLevel) - POINT_RADIUS, (int) (vertex.getLatitude() * zoomLevel) - POINT_RADIUS, POINT_RADIUS * 2, POINT_RADIUS * 2);
             }
         }
+
 
         private Edge getEdgeAt(int x, int y) {
             for (Edge edge : graph.getEdges()) {
