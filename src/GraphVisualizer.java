@@ -121,6 +121,9 @@ public class GraphVisualizer extends JFrame {
                 zoomLevel = zoomSlider.getValue();
                 zoomLabel.setText("Zoom Level: " + zoomLevel);
                 drawingPanel.repaint();
+
+
+
             }
         });
 
@@ -163,7 +166,7 @@ public class GraphVisualizer extends JFrame {
         panel.add(zoomSlider);
         panel.add(zoomLabel);
 
-        drawingPanel = new DrawingPanel();
+        drawingPanel = new DrawingPanel(zoomSlider);
         scrollPane = new JScrollPane(drawingPanel);
         add(scrollPane, BorderLayout.CENTER);
         add(panel, BorderLayout.NORTH);
@@ -186,7 +189,7 @@ public class GraphVisualizer extends JFrame {
         private static final int POINT_RADIUS = 5; // Rayon des points
         private static final int EDGE_THICKNESS = 2; // Epaisseur des arêtes
 
-        public DrawingPanel() {
+        public DrawingPanel(JSlider zoomSlider) {
             setPreferredSize(new Dimension(2000, 2000)); // Dimension du panneau de dessin
             setBackground(Color.WHITE);
 
@@ -216,6 +219,29 @@ public class GraphVisualizer extends JFrame {
                         showEdgeInformation(selectedEdge);
                     }
                 }
+
+
+            });
+
+            addMouseWheelListener(new MouseAdapter() {
+                @Override
+                public void mouseWheelMoved(MouseWheelEvent e) {
+                    int notches = e.getWheelRotation();
+                    if (notches < 0) {
+                        if (zoomLevel < 20){
+                            zoomLevel++;
+                        }
+
+                    } else {
+                        zoomLevel--;
+                        if (zoomLevel < 1) {
+                            zoomLevel = 1;
+                        }
+                    }
+                    zoomLabel.setText("Zoom Level: " + zoomLevel);
+                    zoomSlider.setValue(zoomLevel);
+                    drawingPanel.repaint();
+                }
             });
         }
 
@@ -228,6 +254,7 @@ public class GraphVisualizer extends JFrame {
             for (Edge edge : graph.getEdges()) {
                 g2d.drawLine((int) (edge.getSource().getLongitude() * zoomLevel), (int) (edge.getSource().getLatitude() * zoomLevel), (int) (edge.getDestination().getLongitude() * zoomLevel), (int) (edge.getDestination().getLatitude() * zoomLevel));
             }
+
             g2d.setColor(vertexColor);
             for (Vertex vertex : graph.getVertices()) {
                 g2d.fillOval((int) (vertex.getLongitude() * zoomLevel) - POINT_RADIUS, (int) (vertex.getLatitude() * zoomLevel) - POINT_RADIUS, POINT_RADIUS * 2, POINT_RADIUS * 2);
