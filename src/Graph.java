@@ -26,12 +26,15 @@ public class Graph {
 
     public void removeVertex(Vertex vertex) {
         vertices.remove(vertex);
+        List<Edge> edgesToRemove = new ArrayList<>();
         for (Edge edge : edges) {
             if (edge.getSource().equals(vertex) || edge.getDestination().equals(vertex)) {
-                removeEdge(edge);
+                edgesToRemove.add(edge);
             }
         }
+        edges.removeAll(edgesToRemove);
     }
+
 
     public void addEdge(Edge edge) {
         if (!edges.contains(edge)) {

@@ -62,31 +62,45 @@ public class GraphVisualizer extends JFrame {
         addVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String vertexId = JOptionPane.showInputDialog("Enter vertex ID:");
-                String vertexName = JOptionPane.showInputDialog("Enter vertex name:");
-                double latitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex latitude:"));
-                double longitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex longitude:"));
-                Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
-                graph.addVertex(vertex);
-                drawingPanel.repaint();
-                isSaved = false; // Mettre à jour l'état de sauvegarde
+                if (vertexId != null) {
+                    if (graph.getVertexById(vertexId) != null) {
+                        JOptionPane.showMessageDialog(null, "A vertex with the same ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    String vertexName = JOptionPane.showInputDialog("Enter vertex name:");
+                    double latitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex latitude:"));
+                    double longitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex longitude:"));
+                    Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
+                    graph.addVertex(vertex);
+                    drawingPanel.repaint();
+                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                }
             }
         });
 
         addEdgeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String edgeId = JOptionPane.showInputDialog("Enter edge ID:");
-                String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
-                String destinationId = JOptionPane.showInputDialog("Enter destination vertex ID:");
-                double weight = Double.parseDouble(JOptionPane.showInputDialog("Enter edge weight:"));
-                Vertex source = graph.getVertexById(sourceId);
-                Vertex destination = graph.getVertexById(destinationId);
-                if (source != null && destination != null) {
-                    Edge edge = new Edge(edgeId, source, destination, weight);
-                    graph.addEdge(edge);
-                    drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
+                if (edgeId != null) {
+                    if (graph.getEdgeById(edgeId) != null) {
+                        JOptionPane.showMessageDialog(null, "An edge with the same ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
+                    String destinationId = JOptionPane.showInputDialog("Enter destination vertex ID:");
+                    double weight = Double.parseDouble(JOptionPane.showInputDialog("Enter edge weight:"));
+                    Vertex source = graph.getVertexById(sourceId);
+                    Vertex destination = graph.getVertexById(destinationId);
+                    if (source != null && destination != null) {
+                        Edge edge = new Edge(edgeId, source, destination, weight);
+                        graph.addEdge(edge);
+                        drawingPanel.repaint();
+                        isSaved = false; // Mettre à jour l'état de sauvegarde
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         });
@@ -248,7 +262,7 @@ public class GraphVisualizer extends JFrame {
                 public void mouseWheelMoved(MouseWheelEvent e) {
                     int notches = e.getWheelRotation();
                     if (notches < 0) {
-                        if (zoomLevel < 20){
+                        if (zoomLevel < 20) {
                             zoomLevel++;
                         }
                     } else {
@@ -328,6 +342,7 @@ public class GraphVisualizer extends JFrame {
             final JDialog dialog = pane.createDialog(null, "Vertex Information");
             dialog.setModal(false);  // Définir le dialogue comme non modal
             JButton editButton = new JButton("Edit");
+            JButton deleteButton = new JButton("Delete");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String oldVertexName = vertex.getName();
@@ -379,8 +394,20 @@ public class GraphVisualizer extends JFrame {
                     JOptionPane.showMessageDialog(null, "The vertex has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
+            deleteButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this vertex?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+                    if (choice == JOptionPane.YES_OPTION) {
+                        graph.removeVertex(vertex);
+                        dialog.dispose();
+                        drawingPanel.repaint();
+                        isSaved = false; // Mettre à jour l'état de sauvegarde
+                        JOptionPane.showMessageDialog(null, "The vertex has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
 
-            pane.setOptions(new Object[]{editButton});
+            pane.setOptions(new Object[]{editButton, deleteButton});
             dialog.setVisible(true);
         }
 
@@ -416,7 +443,6 @@ public class GraphVisualizer extends JFrame {
                     JOptionPane.showMessageDialog(null, "The edge has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
-
             deleteButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this edge?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
