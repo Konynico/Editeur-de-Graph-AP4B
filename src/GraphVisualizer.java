@@ -301,7 +301,6 @@ public class GraphVisualizer extends JFrame {
             }
         }
 
-
         private Edge getEdgeAt(int x, int y) {
             for (Edge edge : graph.getEdges()) {
                 double distance = Line2D.ptSegDist(edge.getSource().getLongitude() * zoomLevel, edge.getSource().getLatitude() * zoomLevel, edge.getDestination().getLongitude() * zoomLevel, edge.getDestination().getLatitude() * zoomLevel, x, y);
@@ -391,6 +390,7 @@ public class GraphVisualizer extends JFrame {
             final JDialog dialog = pane.createDialog(null, "Edge Information");
             dialog.setModal(false); // Définir le dialogue comme non modal
             JButton editButton = new JButton("Edit");
+            JButton deleteButton = new JButton("Delete");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String oldWeight = String.valueOf(edge.getWeight());
@@ -417,7 +417,20 @@ public class GraphVisualizer extends JFrame {
                 }
             });
 
-            pane.setOptions(new Object[]{editButton});
+            deleteButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this edge?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+                    if (choice == JOptionPane.YES_OPTION) {
+                        graph.removeEdge(edge);
+                        dialog.dispose();
+                        drawingPanel.repaint();
+                        isSaved = false; // Mettre à jour l'état de sauvegarde
+                        JOptionPane.showMessageDialog(null, "The edge has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+
+            pane.setOptions(new Object[]{editButton, deleteButton});
             dialog.setVisible(true);
         }
     }
