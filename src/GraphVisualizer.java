@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import java.util.*;
 import java.util.List;
 
+
 public class GraphVisualizer extends JFrame {
     private Graph graph;
     private int zoomLevel = 10; // Valeur initiale du zoom
@@ -18,6 +19,40 @@ public class GraphVisualizer extends JFrame {
     private Color backgroundColor;
     private Color edgeColor;
     private Color vertexColor;
+
+
+    private void showChoiceDialog() {
+        ChoiceDialog choiceDialog = new ChoiceDialog(this);
+        choiceDialog.setVisible(true);
+        int choice = choiceDialog.getChoice();
+        // Faites quelque chose avec le choix de l'utilisateur
+        // Par exemple, vous pouvez afficher un message en fonction du choix
+        switch (choice) {
+            case 1:
+                break;
+            case 2:
+                int confirmChoice = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset the graph ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                if (confirmChoice == JOptionPane.YES_OPTION) {
+                    graph.getEdges().clear();
+                    graph.getVertices().clear();
+                    drawingPanel.repaint();
+                }
+                break;
+            case 3:
+                //importe un fichier local .csv
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setCurrentDirectory(new java.io.File("."));
+                fileChooser.setDialogTitle("Choose a file");
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                fileChooser.setAcceptAllFileFilterUsed(false);
+                if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    String filename = fileChooser.getSelectedFile().getAbsolutePath();
+                    graph = GraphLoader.loadGraph(filename);
+                    drawingPanel.repaint();
+                }
+                break;
+        }
+    }
 
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
@@ -33,8 +68,13 @@ public class GraphVisualizer extends JFrame {
                 } else {
                     showExitConfirmationDialog();
                 }
+
             }
+
         });
+
+
+
 
         backgroundColor = Color.WHITE;
         edgeColor = Color.BLACK;
@@ -205,6 +245,7 @@ public class GraphVisualizer extends JFrame {
         add(panel, BorderLayout.NORTH);
 
         setVisible(true);
+        showChoiceDialog();
     }
 
     private void showExitConfirmationDialog() {
