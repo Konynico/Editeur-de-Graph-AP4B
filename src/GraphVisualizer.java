@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 import javax.swing.event.*;
+import java.io.File;
 import java.util.*;
 import java.util.List;
 
@@ -39,18 +40,44 @@ public class GraphVisualizer extends JFrame {
                 }
                 break;
             case 3:
-                //importe un fichier local .csv
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setCurrentDirectory(new java.io.File("."));
+                fileChooser.setCurrentDirectory(new File("."));
                 fileChooser.setDialogTitle("Choose a file");
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fileChooser.setAcceptAllFileFilterUsed(false);
                 if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                     String filename = fileChooser.getSelectedFile().getAbsolutePath();
-                    graph = GraphLoader.loadGraph(filename);
-                    drawingPanel.repaint();
+                    File sourceFile = new File(filename);
+                    File destinationFile = new File("src/graph.csv");
+
+                    if (sourceFile.exists()) {
+                        if (destinationFile.exists()) {
+                            destinationFile.delete();
+                        }
+                        sourceFile.renameTo(destinationFile);
+                        graph = GraphLoader.loadGraph(destinationFile.getAbsolutePath());
+
+                        //popup pour dire que le graph a bien été chargé
+                        JOptionPane.showMessageDialog(null, "The graph has been loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+
+                        // Fermeture de la fenêtre graphique
+                        this.dispose();
+
+                        // Relancer le main
+                        String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+                        String classPath = System.getProperty("java.class.path");
+                        String className = Main.class.getCanonicalName();
+                        ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", classPath, className);
+                        try {
+                            builder.start();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        System.out.println("Le fichier sélectionné n'existe pas.");
+                    }
                 }
-                break;
         }
     }
 
