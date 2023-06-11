@@ -11,7 +11,7 @@ public class ChoiceDialog extends JDialog {
         setLayout(new FlowLayout());
 
         JButton choiceButton1 = new JButton("Use the application graph");
-        JButton choiceButton2 = new JButton("Restet the graph of the application");
+        JButton choiceButton2 = new JButton("Reset the graph of the application");
         JButton choiceButton3 = new JButton("Import a graph");
 
 

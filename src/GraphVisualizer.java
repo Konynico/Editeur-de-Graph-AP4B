@@ -84,7 +84,6 @@ public class GraphVisualizer extends JFrame {
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // Désactiver la fermeture par défaut
-        setSize(1200, 800); // Modification de la taille de la fenêtre
 
         // Ajouter un WindowListener pour intercepter l'événement de fermeture de la fenêtre
         addWindowListener(new WindowAdapter() {
@@ -109,6 +108,7 @@ public class GraphVisualizer extends JFrame {
 
         JPanel panel = new JPanel();
         JButton darkModeButton = new JButton("Dark Mode");
+        JButton exportButton = new JButton("Export Graph");
         JButton saveButton = new JButton("Save Graph");
         JButton addVertexButton = new JButton("Add Vertex");
         JButton addEdgeButton = new JButton("Add Edge");
@@ -117,6 +117,22 @@ public class GraphVisualizer extends JFrame {
         JButton calculatePathButton = new JButton("Calculate Shortest Path"); // Bouton pour calculer le chemin le plus court
         JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, zoomLevel); // Paramètres du JSlider
         zoomLabel = new JLabel("Zoom Level: " + zoomLevel); // Label explicatif du zoom
+
+
+        exportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Specify a file to save");
+
+                int userSelection = fileChooser.showSaveDialog(GraphVisualizer.this);
+
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File fileToSave = fileChooser.getSelectedFile();
+                    GraphSaver.saveGraph(graph, fileToSave.getAbsolutePath());
+                    JOptionPane.showMessageDialog(null, "The graph has been exported successfully.", "Export Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
 
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -129,48 +145,81 @@ public class GraphVisualizer extends JFrame {
         addVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String vertexId = JOptionPane.showInputDialog("Enter vertex ID:");
-                if (vertexId != null) {
-                    if (graph.getVertexById(vertexId) != null) {
-                        JOptionPane.showMessageDialog(null, "A vertex with the same ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    String vertexName = JOptionPane.showInputDialog("Enter vertex name:");
-                    double latitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex latitude:"));
-                    double longitude = Double.parseDouble(JOptionPane.showInputDialog("Enter vertex longitude:"));
-                    Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
-                    graph.addVertex(vertex);
-                    drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                if (vertexId == null) {
+                    return;
                 }
+
+                if (graph.getVertexById(vertexId) != null) {
+                    JOptionPane.showMessageDialog(null, "A vertex with the same ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String vertexName = JOptionPane.showInputDialog("Enter vertex name:");
+                if (vertexName == null) {
+                    return;
+                }
+
+                String latitudeString = JOptionPane.showInputDialog("Enter vertex latitude:");
+                if (latitudeString == null) {
+                    return;
+                }
+
+                String longitudeString = JOptionPane.showInputDialog("Enter vertex longitude:");
+                if (longitudeString == null) {
+                    return;
+                }
+
+                double latitude = Double.parseDouble(latitudeString);
+                double longitude = Double.parseDouble(longitudeString);
+                Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
+                graph.addVertex(vertex);
+                drawingPanel.repaint();
+                isSaved = false; // Mettre à jour l'état de sauvegarde
             }
         });
+
 
         addEdgeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String edgeId = JOptionPane.showInputDialog("Enter edge ID:");
-                if (edgeId != null) {
-                    if (graph.getEdgeById(edgeId) != null) {
-                        JOptionPane.showMessageDialog(null, "An edge with the same ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                if (edgeId == null) {
+                    return;
+                }
 
-                    String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
-                    String destinationId = JOptionPane.showInputDialog("Enter destination vertex ID:");
-                    double weight = Double.parseDouble(JOptionPane.showInputDialog("Enter edge weight:"));
-                    Vertex source = graph.getVertexById(sourceId);
-                    Vertex destination = graph.getVertexById(destinationId);
-                    if (source != null && destination != null) {
-                        Edge edge = new Edge(edgeId, source, destination, weight);
-                        graph.addEdge(edge);
-                        drawingPanel.repaint();
-                        isSaved = false; // Mettre à jour l'état de sauvegarde
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
+                if (graph.getEdgeById(edgeId) != null) {
+                    JOptionPane.showMessageDialog(null, "An edge with the same ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
+                if (sourceId == null) {
+                    return;
+                }
+
+                String destinationId = JOptionPane.showInputDialog("Enter destination vertex ID:");
+                if (destinationId == null) {
+                    return;
+                }
+
+                String weightString = JOptionPane.showInputDialog("Enter edge weight:");
+                if (weightString == null) {
+                    return;
+                }
+
+                double weight = Double.parseDouble(weightString);
+                Vertex source = graph.getVertexById(sourceId);
+                Vertex destination = graph.getVertexById(destinationId);
+                if (source != null && destination != null) {
+                    Edge edge = new Edge(edgeId, source, destination, weight);
+                    graph.addEdge(edge);
+                    drawingPanel.repaint();
+                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                } else {
+                    JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+
 
         deleteVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -203,7 +252,15 @@ public class GraphVisualizer extends JFrame {
         calculatePathButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
+                if (sourceId == null) {
+                    return;
+                }
+
                 String destinationId = JOptionPane.showInputDialog("Enter destination vertex ID:");
+                if (destinationId == null) {
+                    return;
+                }
+
                 Vertex source = graph.getVertexById(sourceId);
                 Vertex destination = graph.getVertexById(destinationId);
                 if (source != null && destination != null) {
@@ -217,6 +274,7 @@ public class GraphVisualizer extends JFrame {
                 }
             }
         });
+
 
         zoomSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -257,6 +315,7 @@ public class GraphVisualizer extends JFrame {
         });
 
         panel.add(darkModeButton);
+        panel.add(exportButton);
         panel.add(saveButton);
         panel.add(addVertexButton);
         panel.add(addEdgeButton);
@@ -270,6 +329,8 @@ public class GraphVisualizer extends JFrame {
         scrollPane = new JScrollPane(drawingPanel);
         add(scrollPane, BorderLayout.CENTER);
         add(panel, BorderLayout.NORTH);
+
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         setVisible(true);
         showChoiceDialog();
