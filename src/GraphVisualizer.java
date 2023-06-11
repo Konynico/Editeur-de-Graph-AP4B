@@ -10,11 +10,11 @@ import java.util.List;
 
 public class GraphVisualizer extends JFrame {
     private Graph graph;
-    private int zoomLevel = 10; // Valeur initiale du zoom
+    private int zoomLevel = 10;
     private JLabel zoomLabel;
     private JScrollPane scrollPane;
     private DrawingPanel drawingPanel;
-    private boolean isSaved = true; // Variable pour garder une trace de l'état de sauvegarde
+    private boolean isSaved = true;
 
     // Variables pour les couleurs de thème
     private Color backgroundColor;
@@ -26,8 +26,7 @@ public class GraphVisualizer extends JFrame {
         ChoiceDialog choiceDialog = new ChoiceDialog(this);
         choiceDialog.setVisible(true);
         int choice = choiceDialog.getChoice();
-        // Faites quelque chose avec le choix de l'utilisateur
-        // Par exemple, vous pouvez afficher un message en fonction du choix
+
         switch (choice) {
             case 1:
                 break;
@@ -57,14 +56,10 @@ public class GraphVisualizer extends JFrame {
                         sourceFile.renameTo(destinationFile);
                         graph = GraphLoader.loadGraph(destinationFile.getAbsolutePath());
 
-                        //popup pour dire que le graph a bien été chargé
                         JOptionPane.showMessageDialog(null, "The graph has been loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
 
-
-                        // Fermeture de la fenêtre graphique
                         this.dispose();
 
-                        // Relancer le main
                         String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
                         String classPath = System.getProperty("java.class.path");
                         String className = Main.class.getCanonicalName();
@@ -83,14 +78,13 @@ public class GraphVisualizer extends JFrame {
 
     public GraphVisualizer(Graph graph) {
         this.graph = graph;
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); // Désactiver la fermeture par défaut
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-        // Ajouter un WindowListener pour intercepter l'événement de fermeture de la fenêtre
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (isSaved) {
-                    dispose(); // Ferme la fenêtre directement si sauvegardé
+                    dispose();
                 } else {
                     showExitConfirmationDialog();
                 }
@@ -114,9 +108,9 @@ public class GraphVisualizer extends JFrame {
         JButton addEdgeButton = new JButton("Add Edge");
         JButton deleteVertexButton = new JButton("Delete Vertex");
         JButton deleteEdgeButton = new JButton("Delete Edge");
-        JButton calculatePathButton = new JButton("Calculate Shortest Path"); // Bouton pour calculer le chemin le plus court
-        JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, zoomLevel); // Paramètres du JSlider
-        zoomLabel = new JLabel("Zoom Level: " + zoomLevel); // Label explicatif du zoom
+        JButton calculatePathButton = new JButton("Calculate Shortest Path");
+        JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 1, 20, zoomLevel);
+        zoomLabel = new JLabel("Zoom Level: " + zoomLevel);
 
 
         exportButton.addActionListener(new ActionListener() {
@@ -137,7 +131,7 @@ public class GraphVisualizer extends JFrame {
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 GraphSaver.saveGraph(graph, "src/graph.csv");
-                isSaved = true; // Mettre à jour l'état de sauvegarde
+                isSaved = true;
                 showSaveConfirmationDialog();
             }
         });
@@ -174,7 +168,7 @@ public class GraphVisualizer extends JFrame {
                 Vertex vertex = new Vertex(vertexId, vertexName, latitude, longitude);
                 graph.addVertex(vertex);
                 drawingPanel.repaint();
-                isSaved = false; // Mettre à jour l'état de sauvegarde
+                isSaved = false;
             }
         });
 
@@ -213,7 +207,7 @@ public class GraphVisualizer extends JFrame {
                     Edge edge = new Edge(edgeId, source, destination, weight);
                     graph.addEdge(edge);
                     drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                    isSaved = false;
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid source or destination vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -228,7 +222,7 @@ public class GraphVisualizer extends JFrame {
                 if (vertex != null) {
                     graph.removeVertex(vertex);
                     drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                    isSaved = false;
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid vertex ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -242,7 +236,7 @@ public class GraphVisualizer extends JFrame {
                 if (edge != null) {
                     graph.removeEdge(edge);
                     drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                    isSaved = false;
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid edge ID", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -348,14 +342,14 @@ public class GraphVisualizer extends JFrame {
     }
 
     private class DrawingPanel extends JPanel {
-        private static final int POINT_RADIUS = 5; // Rayon des points
-        private static final int EDGE_THICKNESS = 2; // Epaisseur des arêtes
+        private static final int POINT_RADIUS = 5;
+        private static final int EDGE_THICKNESS = 2;
 
         private JSlider zoomSlider;
 
         public DrawingPanel(JSlider zoomSlider) {
             this.zoomSlider = zoomSlider;
-            setPreferredSize(new Dimension(2000, 2000)); // Dimension du panneau de dessin
+            setPreferredSize(new Dimension(2000, 2000));
             setBackground(Color.WHITE);
 
             addMouseMotionListener(new MouseAdapter() {
@@ -447,7 +441,7 @@ public class GraphVisualizer extends JFrame {
         private Edge getEdgeAt(int x, int y) {
             for (Edge edge : graph.getEdges()) {
                 double distance = Line2D.ptSegDist(edge.getSource().getLongitude() * zoomLevel, edge.getSource().getLatitude() * zoomLevel, edge.getDestination().getLongitude() * zoomLevel, edge.getDestination().getLatitude() * zoomLevel, x, y);
-                if (distance <= EDGE_THICKNESS / 2.0) { // Distance correspondant à la moitié de l'épaisseur de la ligne
+                if (distance <= EDGE_THICKNESS / 2.0) {
                     return edge;
                 }
             }
@@ -466,17 +460,17 @@ public class GraphVisualizer extends JFrame {
         }
 
         private void showVertexInformation(Vertex vertex) {
-            // Création d'un JOptionPane avec un bouton de modification
+
             final JOptionPane pane = new JOptionPane("Vertex ID: " + vertex.getId() + "\nVertex name: " + vertex.getName() + "\nLatitude: " + vertex.getLatitude() + "\nLongitude: " + vertex.getLongitude(), JOptionPane.INFORMATION_MESSAGE);
             final JDialog dialog = pane.createDialog(null, "Vertex Information");
-            dialog.setModal(false);  // Définir le dialogue comme non modal
+            dialog.setModal(false);
             JButton editButton = new JButton("Edit");
             JButton deleteButton = new JButton("Delete");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String oldVertexName = vertex.getName();
                     String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
-                    // Quitte la fenetre si le bouton Annuler est cliqué
+
                     if (newVertexName == null) {
                         dialog.dispose();
                         return;
@@ -517,9 +511,9 @@ public class GraphVisualizer extends JFrame {
                         vertex.setLongitude(Double.parseDouble(newLongitude));
                     }
 
-                    dialog.dispose(); // Fermer le dialogue
+                    dialog.dispose();
                     drawingPanel.repaint();
-                    isSaved = false;  // Mettre à jour l'état de sauvegarde
+                    isSaved = false;
                     JOptionPane.showMessageDialog(null, "The vertex has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
@@ -530,7 +524,7 @@ public class GraphVisualizer extends JFrame {
                         graph.removeVertex(vertex);
                         dialog.dispose();
                         drawingPanel.repaint();
-                        isSaved = false; // Mettre à jour l'état de sauvegarde
+                        isSaved = false;
                         JOptionPane.showMessageDialog(null, "The vertex has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
@@ -541,17 +535,17 @@ public class GraphVisualizer extends JFrame {
         }
 
         private void showEdgeInformation(Edge edge) {
-            // Création d'un JOptionPane avec un bouton de modification
+
             final JOptionPane pane = new JOptionPane("Edge ID: " + edge.getId() + "\nSource vertex ID: " + edge.getSource().getId() + "\nDestination vertex ID: " + edge.getDestination().getId() + "\nWeight: " + edge.getWeight(), JOptionPane.INFORMATION_MESSAGE);
             final JDialog dialog = pane.createDialog(null, "Edge Information");
-            dialog.setModal(false); // Définir le dialogue comme non modal
+            dialog.setModal(false);
             JButton editButton = new JButton("Edit");
             JButton deleteButton = new JButton("Delete");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String oldWeight = String.valueOf(edge.getWeight());
                     String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
-                    // Quitte la fenêtre si le bouton Annuler est cliqué
+
                     if (newWeight == null) {
                         dialog.dispose();
                         return;
@@ -566,9 +560,9 @@ public class GraphVisualizer extends JFrame {
                         edge.setWeight(Double.parseDouble(newWeight));
                     }
 
-                    dialog.dispose(); // Fermer le dialogue
+                    dialog.dispose();
                     drawingPanel.repaint();
-                    isSaved = false; // Mettre à jour l'état de sauvegarde
+                    isSaved = false;
                     JOptionPane.showMessageDialog(null, "The edge has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
@@ -579,7 +573,7 @@ public class GraphVisualizer extends JFrame {
                         graph.removeEdge(edge);
                         dialog.dispose();
                         drawingPanel.repaint();
-                        isSaved = false; // Mettre à jour l'état de sauvegarde
+                        isSaved = false;
                         JOptionPane.showMessageDialog(null, "The edge has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }

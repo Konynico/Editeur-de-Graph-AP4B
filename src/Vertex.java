@@ -35,14 +35,6 @@ public class Vertex {
         return longitude;
     }
 
-    public List<Edge> getOutgoingEdges() {
-        return outgoingEdges;
-    }
-
-    public List<Edge> getIncomingEdges() {
-        return incomingEdges;
-    }
-
     public void setName(String newVertexName) {
         this.name = newVertexName;
     }
@@ -63,11 +55,4 @@ public class Vertex {
         incomingEdges.add(edge);
     }
 
-    public void removeOutgoingEdge(Edge edge) {
-        outgoingEdges.remove(edge);
-    }
-
-    public void removeIncomingEdge(Edge edge) {
-        incomingEdges.remove(edge);
-    }
 }

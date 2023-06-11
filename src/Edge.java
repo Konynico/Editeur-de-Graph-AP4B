@@ -5,7 +5,7 @@ public class Edge {
     private Vertex source;
     private Vertex destination;
     private double weight;
-    private Color color; // Déclaration de la variable color
+    private Color color;
 
     public Edge(String id, Vertex source, Vertex destination, double weight) {
         this.id = id;
@@ -13,7 +13,6 @@ public class Edge {
         this.destination = destination;
         this.weight = weight;
 
-        // Ajouter l'arête à la liste des arcs de chaque vertex
         source.addOutgoingEdge(this);
         destination.addIncomingEdge(this);
     }
