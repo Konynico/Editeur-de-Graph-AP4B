@@ -19,13 +19,17 @@ public class Graph {
     }
 
     public void addVertex(Vertex vertex) {
+        // Ajoute un sommet à la liste si celui-ci n'est pas déjà présent
         if (!vertices.contains(vertex)) {
             vertices.add(vertex);
         }
     }
 
     public void removeVertex(Vertex vertex) {
+        // Supprime le sommet de la liste des sommets
         vertices.remove(vertex);
+
+        // Supprime toutes les arêtes liées au sommet supprimé
         List<Edge> edgesToRemove = new ArrayList<>();
         for (Edge edge : edges) {
             if (edge.getSource().equals(vertex) || edge.getDestination().equals(vertex)) {
@@ -35,18 +39,20 @@ public class Graph {
         edges.removeAll(edgesToRemove);
     }
 
-
     public void addEdge(Edge edge) {
+        // Ajoute une arête à la liste si celle-ci n'est pas déjà présente
         if (!edges.contains(edge)) {
             edges.add(edge);
         }
     }
 
     public void removeEdge(Edge edge) {
+        // Supprime l'arête de la liste des arêtes
         edges.remove(edge);
     }
 
     public List<Edge> getEdgesFrom(Vertex vertex) {
+        // Récupère toutes les arêtes sortantes d'un sommet donné
         List<Edge> edgesFromVertex = new ArrayList<>();
         for (Edge edge : edges) {
             if (edge.getSource().equals(vertex)) {
@@ -57,6 +63,7 @@ public class Graph {
     }
 
     public Vertex getVertexById(String id) {
+        // Récupère un sommet en fonction de son identifiant
         for (Vertex vertex : vertices) {
             if (vertex.getId().equals(id)) {
                 return vertex;
@@ -66,6 +73,7 @@ public class Graph {
     }
 
     public Edge getEdgeById(String id) {
+        // Récupère une arête en fonction de son identifiant
         for (Edge edge : edges) {
             if (edge.getId().equals(id)) {
                 return edge;
@@ -73,5 +81,4 @@ public class Graph {
         }
         return null;
     }
-
 }

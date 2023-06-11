@@ -9,17 +9,18 @@ import java.util.List;
 
 
 public class GraphVisualizer extends JFrame {
-    private Graph graph;
-    private int zoomLevel = 10;
-    private JLabel zoomLabel;
-    private JScrollPane scrollPane;
-    private DrawingPanel drawingPanel;
-    private boolean isSaved = true;
+    private Graph graph;             // Le graphe associé à l'instance de GraphVisualizer
+    private int zoomLevel = 10;      // Le niveau de zoom actuel
+    private JLabel zoomLabel;        // Étiquette pour afficher le niveau de zoom
+    private JScrollPane scrollPane;  // Panneau de défilement pour la zone de dessin
+    private DrawingPanel drawingPanel; // Panneau de dessin pour afficher le graphe
+    private boolean isSaved = true;  // Indicateur pour savoir si le graphe a été enregistré
 
     // Variables pour les couleurs de thème
-    private Color backgroundColor;
-    private Color edgeColor;
-    private Color vertexColor;
+    private Color backgroundColor;   // Couleur de fond du panneau de dessin
+    private Color edgeColor;         // Couleur des arêtes du graphe
+    private Color vertexColor;       // Couleur des sommets du graphe
+
 
 
     private void showChoiceDialog() {
@@ -29,8 +30,10 @@ public class GraphVisualizer extends JFrame {
 
         switch (choice) {
             case 1:
+                // Action 1
                 break;
             case 2:
+                // Action 2 : Réinitialiser le graphe
                 int confirmChoice = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset the graph ?", "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirmChoice == JOptionPane.YES_OPTION) {
                     graph.getEdges().clear();
@@ -39,6 +42,7 @@ public class GraphVisualizer extends JFrame {
                 }
                 break;
             case 3:
+                // Action 3 : Charger un graphe à partir d'un fichier
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setCurrentDirectory(new File("."));
                 fileChooser.setDialogTitle("Choose a file");
@@ -93,9 +97,7 @@ public class GraphVisualizer extends JFrame {
 
         });
 
-
-
-
+        // Définition des couleurs de thème par défaut
         backgroundColor = Color.WHITE;
         edgeColor = Color.BLACK;
         vertexColor = Color.BLACK;
@@ -115,6 +117,7 @@ public class GraphVisualizer extends JFrame {
 
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Exporter le graphe
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setDialogTitle("Specify a file to save");
 
@@ -130,6 +133,7 @@ public class GraphVisualizer extends JFrame {
 
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Sauvegarder le graphe
                 GraphSaver.saveGraph(graph, "src/graph.csv");
                 isSaved = true;
                 showSaveConfirmationDialog();
@@ -138,6 +142,7 @@ public class GraphVisualizer extends JFrame {
 
         addVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Ajouter un sommet
                 String vertexId = JOptionPane.showInputDialog("Enter vertex ID:");
                 if (vertexId == null) {
                     return;
@@ -175,6 +180,7 @@ public class GraphVisualizer extends JFrame {
 
         addEdgeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Ajouter une arête
                 String edgeId = JOptionPane.showInputDialog("Enter edge ID:");
                 if (edgeId == null) {
                     return;
@@ -217,6 +223,7 @@ public class GraphVisualizer extends JFrame {
 
         deleteVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Supprimer un sommet
                 String vertexId = JOptionPane.showInputDialog("Enter vertex ID:");
                 Vertex vertex = graph.getVertexById(vertexId);
                 if (vertex != null) {
@@ -231,6 +238,7 @@ public class GraphVisualizer extends JFrame {
 
         deleteEdgeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Supprimer une arête
                 String edgeId = JOptionPane.showInputDialog("Enter edge ID:");
                 Edge edge = graph.getEdgeById(edgeId);
                 if (edge != null) {
@@ -245,6 +253,7 @@ public class GraphVisualizer extends JFrame {
 
         calculatePathButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Calculer le chemin le plus court
                 String sourceId = JOptionPane.showInputDialog("Enter source vertex ID:");
                 if (sourceId == null) {
                     return;
@@ -272,6 +281,7 @@ public class GraphVisualizer extends JFrame {
 
         zoomSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
+                // Gérer le changement de niveau de zoom
                 zoomLevel = zoomSlider.getValue();
                 zoomLabel.setText("Zoom Level: " + zoomLevel);
                 drawingPanel.repaint();
@@ -280,6 +290,7 @@ public class GraphVisualizer extends JFrame {
 
         darkModeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // Basculer entre le mode sombre et le mode clair
                 Color darkModeBackgroundColor = new Color(60, 63, 65);
                 Color darkModeForegroundColor = Color.WHITE;
                 Color darkModeEdgeColor = Color.WHITE;
@@ -290,13 +301,13 @@ public class GraphVisualizer extends JFrame {
                 Color lightModeVertexColor = Color.BLACK;
 
                 if (darkModeButton.getText().equals("Dark Mode")) {
-                    // Passer en dark mode
+                    // Passer en mode sombre
                     backgroundColor = darkModeBackgroundColor;
                     edgeColor = darkModeEdgeColor;
                     vertexColor = darkModeVertexColor;
                     darkModeButton.setText("Light Mode");
                 } else {
-                    // Passer en light mode
+                    // Passer en mode clair
                     backgroundColor = lightModeBackgroundColor;
                     edgeColor = lightModeEdgeColor;
                     vertexColor = lightModeVertexColor;
@@ -331,6 +342,7 @@ public class GraphVisualizer extends JFrame {
     }
 
     private void showExitConfirmationDialog() {
+        // Afficher une boîte de dialogue de confirmation de sortie
         int choice = JOptionPane.showConfirmDialog(null, "The graph has unsaved changes. Are you sure you want to exit?", "Exit Confirmation", JOptionPane.YES_NO_OPTION);
         if (choice == JOptionPane.YES_OPTION) {
             dispose();
@@ -338,6 +350,7 @@ public class GraphVisualizer extends JFrame {
     }
 
     private void showSaveConfirmationDialog() {
+        // Afficher une boîte de dialogue de confirmation de sauvegarde
         JOptionPane.showMessageDialog(null, "The graph has been saved successfully.", "Save Confirmation", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -355,6 +368,7 @@ public class GraphVisualizer extends JFrame {
             addMouseMotionListener(new MouseAdapter() {
                 @Override
                 public void mouseMoved(MouseEvent e) {
+                    // Gérer le survol du curseur sur un sommet ou une arête
                     Vertex hoveredVertex = getVertexAt(e.getX(), e.getY());
                     Edge hoveredEdge = getEdgeAt(e.getX(), e.getY());
                     if (hoveredVertex != null) {
@@ -370,6 +384,7 @@ public class GraphVisualizer extends JFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
+                    // Gérer le clic sur un sommet ou une arête
                     Vertex selectedVertex = getVertexAt(e.getX(), e.getY());
                     Edge selectedEdge = getEdgeAt(e.getX(), e.getY());
                     if (selectedVertex != null) {
@@ -383,6 +398,7 @@ public class GraphVisualizer extends JFrame {
             addMouseWheelListener(new MouseAdapter() {
                 @Override
                 public void mouseWheelMoved(MouseWheelEvent e) {
+                    // Gérer le mouvement de la molette de la souris pour le zoom
                     int notches = e.getWheelRotation();
                     if (notches < 0) {
                         if (zoomLevel < 20) {
@@ -408,6 +424,7 @@ public class GraphVisualizer extends JFrame {
             g2d.setStroke(new BasicStroke(EDGE_THICKNESS));
 
             for (Edge edge : graph.getEdges()) {
+                // Dessiner les arêtes
                 if (edge.getColor() != null) {
                     g2d.setColor(edge.getColor());
                 } else {
@@ -434,11 +451,13 @@ public class GraphVisualizer extends JFrame {
 
             g2d.setColor(vertexColor);
             for (Vertex vertex : graph.getVertices()) {
+                // Dessiner les sommets
                 g2d.fillOval((int) (vertex.getLongitude() * zoomLevel) - POINT_RADIUS, (int) (vertex.getLatitude() * zoomLevel) - POINT_RADIUS, POINT_RADIUS * 2, POINT_RADIUS * 2);
             }
         }
 
         private Edge getEdgeAt(int x, int y) {
+            // Récupérer l'arête à la position (x, y)
             for (Edge edge : graph.getEdges()) {
                 double distance = Line2D.ptSegDist(edge.getSource().getLongitude() * zoomLevel, edge.getSource().getLatitude() * zoomLevel, edge.getDestination().getLongitude() * zoomLevel, edge.getDestination().getLatitude() * zoomLevel, x, y);
                 if (distance <= EDGE_THICKNESS / 2.0) {
@@ -449,6 +468,7 @@ public class GraphVisualizer extends JFrame {
         }
 
         private Vertex getVertexAt(int x, int y) {
+            // Récupérer le sommet à la position (x, y)
             for (Vertex vertex : graph.getVertices()) {
                 int dx = x - (int) (vertex.getLongitude() * zoomLevel);
                 int dy = y - (int) (vertex.getLatitude() * zoomLevel);
@@ -460,7 +480,7 @@ public class GraphVisualizer extends JFrame {
         }
 
         private void showVertexInformation(Vertex vertex) {
-
+            // Afficher les informations d'un sommet
             final JOptionPane pane = new JOptionPane("Vertex ID: " + vertex.getId() + "\nVertex name: " + vertex.getName() + "\nLatitude: " + vertex.getLatitude() + "\nLongitude: " + vertex.getLongitude(), JOptionPane.INFORMATION_MESSAGE);
             final JDialog dialog = pane.createDialog(null, "Vertex Information");
             dialog.setModal(false);
@@ -468,6 +488,7 @@ public class GraphVisualizer extends JFrame {
             JButton deleteButton = new JButton("Delete");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    // Modifier un sommet
                     String oldVertexName = vertex.getName();
                     String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
 
@@ -519,6 +540,7 @@ public class GraphVisualizer extends JFrame {
             });
             deleteButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    // Supprimer un sommet
                     int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this vertex?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
                     if (choice == JOptionPane.YES_OPTION) {
                         graph.removeVertex(vertex);
@@ -535,7 +557,7 @@ public class GraphVisualizer extends JFrame {
         }
 
         private void showEdgeInformation(Edge edge) {
-
+            // Afficher les informations d'une arête
             final JOptionPane pane = new JOptionPane("Edge ID: " + edge.getId() + "\nSource vertex ID: " + edge.getSource().getId() + "\nDestination vertex ID: " + edge.getDestination().getId() + "\nWeight: " + edge.getWeight(), JOptionPane.INFORMATION_MESSAGE);
             final JDialog dialog = pane.createDialog(null, "Edge Information");
             dialog.setModal(false);
@@ -543,6 +565,7 @@ public class GraphVisualizer extends JFrame {
             JButton deleteButton = new JButton("Delete");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    // Modifier une arête
                     String oldWeight = String.valueOf(edge.getWeight());
                     String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
 
@@ -568,6 +591,7 @@ public class GraphVisualizer extends JFrame {
             });
             deleteButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    // Supprimer une arête
                     int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this edge?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
                     if (choice == JOptionPane.YES_OPTION) {
                         graph.removeEdge(edge);

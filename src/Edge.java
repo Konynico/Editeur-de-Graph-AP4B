@@ -1,11 +1,11 @@
 import java.awt.*;
 
 public class Edge {
-    private String id;
-    private Vertex source;
-    private Vertex destination;
-    private double weight;
-    private Color color;
+    private String id; // Identifiant de l'arête
+    private Vertex source; // Sommet source de l'arête
+    private Vertex destination; // Sommet destination de l'arête
+    private double weight; // Poids de l'arête
+    private Color color; // Couleur de l'arête
 
     public Edge(String id, Vertex source, Vertex destination, double weight) {
         this.id = id;
@@ -13,8 +13,8 @@ public class Edge {
         this.destination = destination;
         this.weight = weight;
 
-        source.addOutgoingEdge(this);
-        destination.addIncomingEdge(this);
+        source.addOutgoingEdge(this); // Ajoute l'arête en tant qu'arête sortante du sommet source
+        destination.addIncomingEdge(this); // Ajoute l'arête en tant qu'arête entrante du sommet destination
     }
 
     public String getId() {
@@ -47,18 +47,18 @@ public class Edge {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj) { // Vérifie si les objets sont identiques en mémoire
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) { // Vérifie si l'objet est null ou n'appartient pas à la même classe
             return false;
         }
         Edge edge = (Edge) obj;
-        return id.equals(edge.id);
+        return id.equals(edge.id); // Vérifie si les identifiants des arêtes sont égaux
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return id.hashCode(); // Utilise le hashCode de l'identifiant pour calculer le hashCode de l'objet
     }
 }

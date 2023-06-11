@@ -17,22 +17,21 @@ public class GraphLoader {
                     double lat = Double.parseDouble(parts[3]);
                     double lon = Double.parseDouble(parts[4]);
                     Vertex vertex = new Vertex(id, name, lat, lon);
-                    graph.addVertex(vertex);
+                    graph.addVertex(vertex); // Ajouter le sommet au graphe
                 } else if (parts[0].equals("EDGE")) {
                     String id = parts[1];
                     Vertex source = graph.getVertices().stream()
                             .filter(vertex -> vertex.getId().equals(parts[2]))
                             .findFirst()
-                            .orElse(null);
+                            .orElse(null); // Rechercher le sommet source par son identifiant
                     Vertex destination = graph.getVertices().stream()
                             .filter(vertex -> vertex.getId().equals(parts[3]))
                             .findFirst()
-                            .orElse(null);
+                            .orElse(null); // Rechercher le sommet destination par son identifiant
                     double weight = Double.parseDouble(parts[4]);
                     if (source != null && destination != null) {
                         Edge edge = new Edge(id, source, destination, weight);
-                        graph.addEdge(edge);
-
+                        graph.addEdge(edge); // Ajouter l'arc au graphe si les sommets source et destination existent
                     }
                 }
             }
@@ -40,6 +39,6 @@ public class GraphLoader {
             e.printStackTrace();
         }
 
-        return graph;
+        return graph; // Retourner le graphe chargé à partir du fichier
     }
 }
