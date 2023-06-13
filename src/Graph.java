@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Graph {
-    private List<Vertex> vertices;
-    private List<Edge> edges;
+    private final List<Vertex> vertices;
+    private final List<Edge> edges;
 
     public Graph() {
         this.vertices = new ArrayList<>();

@@ -1,9 +1,9 @@
 import java.awt.*;
 
 public class Edge {
-    private String id; // Identifiant de l'arête
-    private Vertex source; // Sommet source de l'arête
-    private Vertex destination; // Sommet destination de l'arête
+    private final String id; // Identifiant de l'arête
+    private final Vertex source; // Sommet source de l'arête
+    private final Vertex destination; // Sommet destination de l'arête
     private double weight; // Poids de l'arête
     private Color color; // Couleur de l'arête
 

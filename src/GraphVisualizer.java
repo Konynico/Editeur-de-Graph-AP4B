@@ -4,16 +4,14 @@ import java.awt.event.*;
 import java.awt.geom.Line2D;
 import javax.swing.event.*;
 import java.io.File;
-import java.util.*;
 import java.util.List;
 
 
 public class GraphVisualizer extends JFrame {
     private Graph graph;             // Le graphe associé à l'instance de GraphVisualizer
     private int zoomLevel = 10;      // Le niveau de zoom actuel
-    private JLabel zoomLabel;        // Étiquette pour afficher le niveau de zoom
-    private JScrollPane scrollPane;  // Panneau de défilement pour la zone de dessin
-    private DrawingPanel drawingPanel; // Panneau de dessin pour afficher le graphe
+    private final JLabel zoomLabel;        // Étiquette pour afficher le niveau de zoom
+    private final DrawingPanel drawingPanel; // Panneau de dessin pour afficher le graphe
     private boolean isSaved = true;  // Indicateur pour savoir si le graphe a été enregistré
 
     // Variables pour les couleurs de thème
@@ -55,9 +53,19 @@ public class GraphVisualizer extends JFrame {
 
                     if (sourceFile.exists()) {
                         if (destinationFile.exists()) {
-                            destinationFile.delete();
+                            boolean deleted = destinationFile.delete();
+                            if (!deleted) {
+                                // Gérer l'échec de la suppression du fichier destination
+                                System.out.println("Failed to delete the destination file.");
+                                return;
+                            }
                         }
-                        sourceFile.renameTo(destinationFile);
+                        boolean renamed = sourceFile.renameTo(destinationFile);
+                        if (!renamed) {
+                            // Gérer l'échec du renommage du fichier source vers le fichier destination
+                            System.out.println("Failed to rename the source file to the destination file.");
+                            return;
+                        }
                         graph = GraphLoader.loadGraph(destinationFile.getAbsolutePath());
 
                         JOptionPane.showMessageDialog(null, "The graph has been loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -76,6 +84,7 @@ public class GraphVisualizer extends JFrame {
                     } else {
                         System.out.println("Le fichier sélectionné n'existe pas.");
                     }
+
                 }
         }
     }
@@ -115,29 +124,25 @@ public class GraphVisualizer extends JFrame {
         zoomLabel = new JLabel("Zoom Level: " + zoomLevel);
 
 
-        exportButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Exporter le graphe
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("Specify a file to save");
+        exportButton.addActionListener(e -> {
+            // Exporter le graphe
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Specify a file to save");
 
-                int userSelection = fileChooser.showSaveDialog(GraphVisualizer.this);
+            int userSelection = fileChooser.showSaveDialog(GraphVisualizer.this);
 
-                if (userSelection == JFileChooser.APPROVE_OPTION) {
-                    File fileToSave = fileChooser.getSelectedFile();
-                    GraphSaver.saveGraph(graph, fileToSave.getAbsolutePath());
-                    JOptionPane.showMessageDialog(null, "The graph has been exported successfully.", "Export Confirmation", JOptionPane.INFORMATION_MESSAGE);
-                }
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                GraphSaver.saveGraph(graph, fileToSave.getAbsolutePath());
+                JOptionPane.showMessageDialog(null, "The graph has been exported successfully.", "Export Confirmation", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Sauvegarder le graphe
-                GraphSaver.saveGraph(graph, "src/graph.csv");
-                isSaved = true;
-                showSaveConfirmationDialog();
-            }
+        saveButton.addActionListener(e -> {
+            // Sauvegarder le graphe
+            GraphSaver.saveGraph(graph, "src/graph.csv");
+            isSaved = true;
+            showSaveConfirmationDialog();
         });
 
         addVertexButton.addActionListener(new ActionListener() {
@@ -292,11 +297,9 @@ public class GraphVisualizer extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // Basculer entre le mode sombre et le mode clair
                 Color darkModeBackgroundColor = new Color(60, 63, 65);
-                Color darkModeForegroundColor = Color.WHITE;
                 Color darkModeEdgeColor = Color.WHITE;
                 Color darkModeVertexColor = Color.WHITE;
                 Color lightModeBackgroundColor = Color.WHITE;
-                Color lightModeForegroundColor = Color.BLACK;
                 Color lightModeEdgeColor = Color.BLACK;
                 Color lightModeVertexColor = Color.BLACK;
 
@@ -331,7 +334,8 @@ public class GraphVisualizer extends JFrame {
         panel.add(zoomLabel);
 
         drawingPanel = new DrawingPanel(zoomSlider);
-        scrollPane = new JScrollPane(drawingPanel);
+        // Panneau de défilement pour la zone de dessin
+        JScrollPane scrollPane = new JScrollPane(drawingPanel);
         add(scrollPane, BorderLayout.CENTER);
         add(panel, BorderLayout.NORTH);
 
@@ -358,10 +362,7 @@ public class GraphVisualizer extends JFrame {
         private static final int POINT_RADIUS = 5;
         private static final int EDGE_THICKNESS = 2;
 
-        private JSlider zoomSlider;
-
         public DrawingPanel(JSlider zoomSlider) {
-            this.zoomSlider = zoomSlider;
             setPreferredSize(new Dimension(2000, 2000));
             setBackground(Color.WHITE);
 
@@ -486,69 +487,65 @@ public class GraphVisualizer extends JFrame {
             dialog.setModal(false);
             JButton editButton = new JButton("Edit");
             JButton deleteButton = new JButton("Delete");
-            editButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    // Modifier un sommet
-                    String oldVertexName = vertex.getName();
-                    String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
+            editButton.addActionListener(e -> {
+                // Modifier un sommet
+                String oldVertexName = vertex.getName();
+                String newVertexName = JOptionPane.showInputDialog(null, "Enter new vertex name:", oldVertexName);
 
-                    if (newVertexName == null) {
-                        dialog.dispose();
+                if (newVertexName == null) {
+                    dialog.dispose();
+                    return;
+                } else {
+                    vertex.setName(newVertexName);
+                }
+
+                String oldLatitude = String.valueOf(vertex.getLatitude());
+                String newLatitude = JOptionPane.showInputDialog(null, "Enter new vertex latitude:", oldLatitude);
+
+                if (newLatitude == null) {
+                    dialog.dispose();
+                    return;
+                } else {
+                    // Vérifie si la latitude est bien un double
+                    try {
+                        Double.parseDouble(newLatitude);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(null, "The latitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
-                    } else {
-                        vertex.setName(newVertexName);
                     }
+                    vertex.setLatitude(Double.parseDouble(newLatitude));
+                }
 
-                    String oldLatitude = String.valueOf(vertex.getLatitude());
-                    String newLatitude = JOptionPane.showInputDialog(null, "Enter new vertex latitude:", oldLatitude);
-
-                    if (newLatitude == null) {
-                        dialog.dispose();
+                String oldLongitude = String.valueOf(vertex.getLongitude());
+                String newLongitude = JOptionPane.showInputDialog(null, "Enter new vertex longitude:", oldLongitude);
+                if (newLongitude == null) {
+                    dialog.dispose();
+                    return;
+                } else {
+                    // Vérifie si la longitude est bien un double
+                    try {
+                        Double.parseDouble(newLongitude);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(null, "The longitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
-                    } else {
-                        // Vérifie si la latitude est bien un double
-                        try {
-                            Double.parseDouble(newLatitude);
-                        } catch (NumberFormatException nfe) {
-                            JOptionPane.showMessageDialog(null, "The latitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        vertex.setLatitude(Double.parseDouble(newLatitude));
                     }
+                    vertex.setLongitude(Double.parseDouble(newLongitude));
+                }
 
-                    String oldLongitude = String.valueOf(vertex.getLongitude());
-                    String newLongitude = JOptionPane.showInputDialog(null, "Enter new vertex longitude:", oldLongitude);
-                    if (newLongitude == null) {
-                        dialog.dispose();
-                        return;
-                    } else {
-                        // Vérifie si la longitude est bien un double
-                        try {
-                            Double.parseDouble(newLongitude);
-                        } catch (NumberFormatException nfe) {
-                            JOptionPane.showMessageDialog(null, "The longitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        vertex.setLongitude(Double.parseDouble(newLongitude));
-                    }
-
+                dialog.dispose();
+                drawingPanel.repaint();
+                isSaved = false;
+                JOptionPane.showMessageDialog(null, "The vertex has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
+            });
+            deleteButton.addActionListener(e -> {
+                // Supprimer un sommet
+                int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this vertex?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+                if (choice == JOptionPane.YES_OPTION) {
+                    graph.removeVertex(vertex);
                     dialog.dispose();
                     drawingPanel.repaint();
                     isSaved = false;
-                    JOptionPane.showMessageDialog(null, "The vertex has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
-                }
-            });
-            deleteButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    // Supprimer un sommet
-                    int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this vertex?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
-                    if (choice == JOptionPane.YES_OPTION) {
-                        graph.removeVertex(vertex);
-                        dialog.dispose();
-                        drawingPanel.repaint();
-                        isSaved = false;
-                        JOptionPane.showMessageDialog(null, "The vertex has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
-                    }
+                    JOptionPane.showMessageDialog(null, "The vertex has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
 
@@ -563,43 +560,39 @@ public class GraphVisualizer extends JFrame {
             dialog.setModal(false);
             JButton editButton = new JButton("Edit");
             JButton deleteButton = new JButton("Delete");
-            editButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    // Modifier une arête
-                    String oldWeight = String.valueOf(edge.getWeight());
-                    String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
+            editButton.addActionListener(e -> {
+                // Modifier une arête
+                String oldWeight = String.valueOf(edge.getWeight());
+                String newWeight = JOptionPane.showInputDialog(null, "Enter new edge weight:", oldWeight);
 
-                    if (newWeight == null) {
-                        dialog.dispose();
+                if (newWeight == null) {
+                    dialog.dispose();
+                    return;
+                } else {
+                    // Vérifie si le poids est bien un double
+                    try {
+                        Double.parseDouble(newWeight);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(null, "The weight must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
-                    } else {
-                        // Vérifie si le poids est bien un double
-                        try {
-                            Double.parseDouble(newWeight);
-                        } catch (NumberFormatException nfe) {
-                            JOptionPane.showMessageDialog(null, "The weight must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        edge.setWeight(Double.parseDouble(newWeight));
                     }
+                    edge.setWeight(Double.parseDouble(newWeight));
+                }
 
+                dialog.dispose();
+                drawingPanel.repaint();
+                isSaved = false;
+                JOptionPane.showMessageDialog(null, "The edge has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
+            });
+            deleteButton.addActionListener(e -> {
+                // Supprimer une arête
+                int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this edge?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+                if (choice == JOptionPane.YES_OPTION) {
+                    graph.removeEdge(edge);
                     dialog.dispose();
                     drawingPanel.repaint();
                     isSaved = false;
-                    JOptionPane.showMessageDialog(null, "The edge has been updated successfully.", "Update Confirmation", JOptionPane.INFORMATION_MESSAGE);
-                }
-            });
-            deleteButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    // Supprimer une arête
-                    int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this edge?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
-                    if (choice == JOptionPane.YES_OPTION) {
-                        graph.removeEdge(edge);
-                        dialog.dispose();
-                        drawingPanel.repaint();
-                        isSaved = false;
-                        JOptionPane.showMessageDialog(null, "The edge has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
-                    }
+                    JOptionPane.showMessageDialog(null, "The edge has been deleted successfully.", "Deletion Confirmation", JOptionPane.INFORMATION_MESSAGE);
                 }
             });
 
