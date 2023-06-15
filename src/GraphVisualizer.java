@@ -121,7 +121,7 @@ public class GraphVisualizer extends JFrame {
         });
 
         saveButton.addActionListener(e -> {
-            // Sauvegarder le graphe
+            // Sauvegarder le graphe dans les Documents par défaut
             String userDocumentsDir = System.getProperty("user.home") + File.separator + "Documents";
             String filename = userDocumentsDir + File.separator + "graph.csv";
             GraphSaver.saveGraph(graph, filename);
