@@ -1,7 +1,18 @@
+import java.net.URL;
+import java.io.InputStream;
+
 public class Main {
     public static void main(String[] args) {
-        Graph graph = GraphLoader.loadGraph("src/graph.csv");
+        InputStream resourceStream = Main.class.getResourceAsStream("/Resources/graph.csv");
+        Graph graph;
 
-        new GraphVisualizer(graph);
+        if (resourceStream != null) {
+            graph = GraphLoader.loadGraph(resourceStream);
+            new GraphVisualizer(graph);
+        } else {
+            System.out.println("Unable to load the resource");
+        }
     }
 }
+
+

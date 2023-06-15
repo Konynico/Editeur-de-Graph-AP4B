@@ -1,13 +1,14 @@
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 
 public class GraphLoader {
 
-    public static Graph loadGraph(String filename) {
+    public static Graph loadGraph(InputStream inputStream) {
         Graph graph = new Graph();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(";");
@@ -39,6 +40,6 @@ public class GraphLoader {
             e.printStackTrace();
         }
 
-        return graph; // Retourner le graphe chargé à partir du fichier
+        return graph;
     }
 }

@@ -4,6 +4,9 @@ import java.awt.event.*;
 import java.awt.geom.Line2D;
 import javax.swing.event.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 
@@ -48,44 +51,23 @@ public class GraphVisualizer extends JFrame {
                 fileChooser.setAcceptAllFileFilterUsed(false);
                 if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                     String filename = fileChooser.getSelectedFile().getAbsolutePath();
-                    File sourceFile = new File(filename);
-                    File destinationFile = new File("src/graph.csv");
-
-                    if (sourceFile.exists()) {
-                        if (destinationFile.exists()) {
-                            boolean deleted = destinationFile.delete();
-                            if (!deleted) {
-                                // Gérer l'échec de la suppression du fichier destination
-                                System.out.println("Failed to delete the destination file.");
-                                return;
-                            }
-                        }
-                        boolean renamed = sourceFile.renameTo(destinationFile);
-                        if (!renamed) {
-                            // Gérer l'échec du renommage du fichier source vers le fichier destination
-                            System.out.println("Failed to rename the source file to the destination file.");
-                            return;
-                        }
-                        graph = GraphLoader.loadGraph(destinationFile.getAbsolutePath());
-
-                        JOptionPane.showMessageDialog(null, "The graph has been loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-                        this.dispose();
-
-                        String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-                        String classPath = System.getProperty("java.class.path");
-                        String className = Main.class.getCanonicalName();
-                        ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", classPath, className);
+                    File file = new File(filename);
+                    if (file.exists()) {
                         try {
-                            builder.start();
-                        } catch (Exception e) {
+                            InputStream fileStream = new FileInputStream(file);
+                            graph = GraphLoader.loadGraph(fileStream);
+                            drawingPanel.repaint();
+                            JOptionPane.showMessageDialog(null, "The graph has been loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        } catch (FileNotFoundException e) {
                             e.printStackTrace();
+                            JOptionPane.showMessageDialog(null, "Failed to load the graph.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     } else {
-                        System.out.println("Le fichier sélectionné n'existe pas.");
+                        JOptionPane.showMessageDialog(null, "Le fichier sélectionné n'existe pas.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
-
                 }
+                break;
+
         }
     }
 
@@ -140,10 +122,14 @@ public class GraphVisualizer extends JFrame {
 
         saveButton.addActionListener(e -> {
             // Sauvegarder le graphe
-            GraphSaver.saveGraph(graph, "src/graph.csv");
+            String userDocumentsDir = System.getProperty("user.home") + File.separator + "Documents";
+            String filename = userDocumentsDir + File.separator + "graph.csv";
+            GraphSaver.saveGraph(graph, filename);
             isSaved = true;
             showSaveConfirmationDialog();
         });
+
+
 
         addVertexButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
