@@ -1,3 +1,9 @@
+package Controller;
+
+import Model.Edge;
+import Model.Graph;
+import Model.Vertex;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

@@ -1,3 +1,12 @@
+package View;
+
+import Controller.GraphLoader;
+import Controller.GraphSaver;
+import Controller.ShortestPathCalculator;
+import Model.Edge;
+import Model.Graph;
+import Model.Vertex;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -11,7 +20,7 @@ import java.util.List;
 
 
 public class GraphVisualizer extends JFrame {
-    private Graph graph;             // Le graphe associé à l'instance de GraphVisualizer
+    private Graph graph;             // Le graphe associé à l'instance de View.GraphVisualizer
     private int zoomLevel = 10;      // Le niveau de zoom actuel
     private final JLabel zoomLabel;        // Étiquette pour afficher le niveau de zoom
     private final DrawingPanel drawingPanel; // Panneau de dessin pour afficher le graphe
@@ -149,13 +158,28 @@ public class GraphVisualizer extends JFrame {
                     return;
                 }
 
+
                 String latitudeString = JOptionPane.showInputDialog("Enter vertex latitude:");
                 if (latitudeString == null) {
+                    return;
+                }
+                //verifier si la latitude est un nombre
+                try {
+                    Double.parseDouble(latitudeString);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Latitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 String longitudeString = JOptionPane.showInputDialog("Enter vertex longitude:");
                 if (longitudeString == null) {
+                    return;
+                }
+                //verifier si la longitude est un nombre
+                try {
+                    Double.parseDouble(longitudeString);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Longitude must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -194,6 +218,13 @@ public class GraphVisualizer extends JFrame {
 
                 String weightString = JOptionPane.showInputDialog("Enter edge weight:");
                 if (weightString == null) {
+                    return;
+                }
+                //verifier si le poids est un nombre
+                try {
+                    Double.parseDouble(weightString);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Weight must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 

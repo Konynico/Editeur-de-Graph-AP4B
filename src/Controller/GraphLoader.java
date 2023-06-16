@@ -1,3 +1,9 @@
+package Controller;
+
+import Model.Edge;
+import Model.Graph;
+import Model.Vertex;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

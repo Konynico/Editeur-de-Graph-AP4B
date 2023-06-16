@@ -1,5 +1,9 @@
-import java.net.URL;
+import Controller.GraphLoader;
+import Model.Graph;
+import View.GraphVisualizer;
+
 import java.io.InputStream;
+
 
 public class Main {
     public static void main(String[] args) {

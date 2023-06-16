@@ -1,3 +1,9 @@
+package Controller;
+
+import Model.Edge;
+import Model.Graph;
+import Model.Vertex;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
