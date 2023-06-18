@@ -28,7 +28,7 @@ public class Main {
         } else {
             resourceStream = Main.class.getResourceAsStream("/Resources/graph.csv");
         }
-        
+
 
         Graph graph;
 
