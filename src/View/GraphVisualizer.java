@@ -372,8 +372,10 @@ public class GraphVisualizer extends JFrame {
 
     private void showSaveConfirmationDialog() {
         // Afficher une boîte de dialogue de confirmation de sauvegarde
-        JOptionPane.showMessageDialog(null, "The graph has been saved successfully.", "Save Confirmation", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "The graph has been saved in your Documents folder. \n" +
+                "If you want to change the destination folder, please use the export button.", "Save Confirmation", JOptionPane.INFORMATION_MESSAGE);
     }
+
 
     private class DrawingPanel extends JPanel {
         private static final int POINT_RADIUS = 5;
