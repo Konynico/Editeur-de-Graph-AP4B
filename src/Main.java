@@ -29,9 +29,8 @@ public class Main {
             resourceStream = Main.class.getResourceAsStream("/Resources/graph.csv");
         }
 
-
+        //initialisation du graph et de la visualisation
         Graph graph;
-
         if (resourceStream != null) {
             graph = GraphLoader.loadGraph(resourceStream);
             new GraphVisualizer(graph);

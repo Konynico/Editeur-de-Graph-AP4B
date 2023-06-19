@@ -32,7 +32,7 @@ public class GraphVisualizer extends JFrame {
     private Color vertexColor;       // Couleur des sommets du graphe
 
 
-
+    //Boite de dialogue pour choisir le graphe à charger
     private void showChoiceDialog() {
         ChoiceDialog choiceDialog = new ChoiceDialog(this);
         choiceDialog.setVisible(true);
@@ -40,10 +40,10 @@ public class GraphVisualizer extends JFrame {
 
         switch (choice) {
             case 1:
-                // Action 1
+                // Action 1 : Fermer le popup et garder le graphe actuel
                 break;
             case 2:
-                // Action 2 : Réinitialiser le graphe
+                // Action 2 : Réinitialiser le contenu du graphe
                 int confirmChoice = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset the graph ?", "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirmChoice == JOptionPane.YES_OPTION) {
                     graph.getEdges().clear();
@@ -231,7 +231,7 @@ public class GraphVisualizer extends JFrame {
                 double weight = Double.parseDouble(weightString);
                 Vertex source = graph.getVertexById(sourceId);
                 Vertex destination = graph.getVertexById(destinationId);
-                if (source != null && destination != null) {
+                if (source != null && destination != null) { // Verfi si les deux sommets existent
                     Edge edge = new Edge(edgeId, source, destination, weight);
                     graph.addEdge(edge);
                     drawingPanel.repaint();
